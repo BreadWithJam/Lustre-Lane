@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReactQueryProvider } from "@/lib/react-query";
 import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
+import { WebVitals } from "@/components/WebVitals";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,10 +42,18 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        {/* Skip to main content link for keyboard/screen reader users — Requirement 6.1 */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-salon-brown focus:text-white focus:rounded-lg focus:font-medium focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
         <ReactQueryProvider>
+          <WebVitals />
           <Header />
           {/* pb-16 on mobile to clear the sticky bottom nav */}
-          <div className="flex-1 flex flex-col pb-16 md:pb-0">
+          <div id="main-content" className="flex-1 flex flex-col pb-16 md:pb-0" tabIndex={-1}>
             {children}
           </div>
           <BottomNav />

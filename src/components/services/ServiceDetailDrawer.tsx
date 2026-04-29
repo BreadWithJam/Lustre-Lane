@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 import type { Service } from '@/types'
 
 interface ServiceDetailDrawerProps {
@@ -14,6 +15,7 @@ interface ServiceDetailDrawerProps {
 
 export function ServiceDetailDrawer({ service, isOpen, onClose }: ServiceDetailDrawerProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
+  const focusTrapRef = useFocusTrap(isOpen)
 
   // Handle escape key and prevent body scroll
   useEffect(() => {
@@ -64,6 +66,7 @@ export function ServiceDetailDrawer({ service, isOpen, onClose }: ServiceDetailD
 
       {/* Drawer */}
       <div
+        ref={focusTrapRef as React.RefObject<HTMLDivElement>}
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"

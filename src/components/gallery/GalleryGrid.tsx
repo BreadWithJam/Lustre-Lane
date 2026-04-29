@@ -154,6 +154,8 @@ export function GalleryGrid() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowLookbooks(v => !v)}
+            aria-expanded={showLookbooks}
+            aria-controls="lookbook-section"
             className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
               showLookbooks
                 ? 'bg-salon-brown text-white'
@@ -167,21 +169,31 @@ export function GalleryGrid() {
 
       {/* Lookbook playlists */}
       {showLookbooks && lookbooks.length > 0 && (
-        <section aria-label="Lookbook playlists">
+        <section id="lookbook-section" aria-label="Lookbook playlists">
           <LookbookPlaylist lookbooks={lookbooks} onImageSelect={openLightbox} />
         </section>
       )}
+      {/* Keep the id in the DOM even when hidden so aria-controls always resolves */}
+      {!showLookbooks && <div id="lookbook-section" hidden />}
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="columns-2 md:columns-3 lg:columns-4" style={{ columnGap: '12px' }}>
+        <div
+          className="columns-2 md:columns-3 lg:columns-4"
+          style={{ columnGap: '12px' }}
+          role="status"
+          aria-label="Loading gallery images"
+          aria-live="polite"
+        >
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
               className="animate-pulse bg-salon-cream rounded-lg break-inside-avoid mb-3"
               style={{ height: `${180 + (i % 3) * 60}px` }}
+              aria-hidden="true"
             />
           ))}
+          <span className="sr-only">Loading gallery images…</span>
         </div>
       )}
 
@@ -214,8 +226,9 @@ export function GalleryGrid() {
 
       {/* Load more indicator */}
       {visibleCount < allImages.length && (
-        <div className="text-center py-4">
-          <div className="inline-block w-6 h-6 border-2 border-salon-brown border-t-transparent rounded-full animate-spin" />
+        <div className="text-center py-4" role="status" aria-label="Loading more images">
+          <div className="inline-block w-6 h-6 border-2 border-salon-brown border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading more images…</span>
         </div>
       )}
 

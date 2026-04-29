@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from 'react'
 import Image from 'next/image'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 import type { GalleryImage } from '@/types'
 
 interface ImageLightboxProps {
@@ -21,6 +22,8 @@ export function ImageLightbox({
   hasPrev = false,
   hasNext = false,
 }: ImageLightboxProps) {
+  const focusTrapRef = useFocusTrap(true)
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -57,6 +60,7 @@ export function ImageLightbox({
     >
       {/* Main content — stop propagation so clicks inside don't close */}
       <div
+        ref={focusTrapRef as React.RefObject<HTMLDivElement>}
         className="relative flex flex-col max-w-4xl w-full max-h-screen p-4"
         onClick={e => e.stopPropagation()}
       >
