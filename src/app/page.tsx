@@ -27,7 +27,7 @@ export default function HomePage() {
               View Gallery
             </Link>
             <Link
-              href="/contact"
+              href="/chat"
               className="bg-salon-gold text-white px-8 py-3 rounded-lg font-semibold hover:bg-salon-gold/90 transition-colors"
             >
               Get Consultation

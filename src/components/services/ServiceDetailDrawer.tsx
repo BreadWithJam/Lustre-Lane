@@ -215,30 +215,32 @@ export function ServiceDetailDrawer({ service, isOpen, onClose }: ServiceDetailD
           <div className="p-6 border-t border-salon-cream bg-white">
             <div className="space-y-3">
               <Link
-                href={`/contact?service=${encodeURIComponent(service.name)}`}
+                href={`/chat?service=${encodeURIComponent(service.name)}`}
                 className="w-full bg-salon-brown text-white py-3 px-6 rounded-lg font-semibold hover:bg-salon-brown/90 transition-colors text-center block"
               >
                 Book Consultation
               </Link>
               <Link
-                href={`/contact?service=${encodeURIComponent(service.name)}&type=question`}
+                href={`/chat?service=${encodeURIComponent(service.name)}&type=question`}
                 className="w-full border-2 border-salon-brown text-salon-brown py-3 px-6 rounded-lg font-semibold hover:bg-salon-brown/5 transition-colors text-center block"
               >
                 Ask Questions
               </Link>
               <div className="flex gap-3">
-                <Link
+                <a
                   href="tel:+1234567890"
                   className="flex-1 bg-salon-gold text-white py-3 px-6 rounded-lg font-semibold hover:bg-salon-gold/90 transition-colors text-center"
                 >
                   Call Now
-                </Link>
-                <Link
-                  href="/contact"
+                </a>
+                <a
+                  href="https://maps.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex-1 bg-salon-cream text-salon-brown py-3 px-6 rounded-lg font-semibold hover:bg-salon-brown/10 transition-colors text-center"
                 >
                   Get Directions
-                </Link>
+                </a>
               </div>
             </div>
           </div>
