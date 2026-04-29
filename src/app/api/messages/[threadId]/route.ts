@@ -5,6 +5,8 @@ import {
   transformMessageThreadRowToMessageThread,
   transformMessageRowToMessage,
 } from '@/lib/database'
+import { sendNewMessageNotification } from '@/lib/email'
+import { recordNotification } from '@/lib/notifications'
 import type { MessageInsert, MessageThreadUpdate } from '@/types'
 
 interface RouteParams {
@@ -57,6 +59,30 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const message = await messagesDb.create(messageInsert)
+
+    // Notify salon staff when a client sends a message (Req 4.1)
+    if ((senderType ?? 'client') === 'client') {
+      const thread = await messageThreadsDb.getById(threadId)
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+      sendNewMessageNotification({
+        clientEmail: thread.client_email,
+        clientName: thread.client_name ?? undefined,
+        messageContent: content ?? '',
+        threadId,
+        appUrl,
+      })
+        .then((result) =>
+          recordNotification({
+            type: 'new_message',
+            recipientEmail: thread.client_email,
+            threadId,
+            status: result.success ? 'sent' : 'failed',
+            error: result.error,
+            createdAt: new Date(),
+          })
+        )
+        .catch((err) => console.error('[messages] Notification error:', err))
+    }
 
     return NextResponse.json(
       { data: transformMessageRowToMessage(message), message: 'Message sent successfully' },

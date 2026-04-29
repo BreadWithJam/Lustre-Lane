@@ -5,6 +5,8 @@ import {
   transformMessageThreadRowToMessageThread,
   transformMessageRowToMessage,
 } from '@/lib/database'
+import { sendNewMessageNotification } from '@/lib/email'
+import { recordNotification } from '@/lib/notifications'
 import type { MessageThreadInsert, MessageInsert } from '@/types'
 
 // GET /api/messages - list all threads (admin) or threads by email
@@ -67,6 +69,27 @@ export async function POST(request: NextRequest) {
       read_at: null,
     }
     const message = await messagesDb.create(messageInsert)
+
+    // Fire-and-forget email notification to salon staff (Req 4.1)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+    sendNewMessageNotification({
+      clientEmail,
+      clientName,
+      messageContent: content,
+      threadId: thread.id,
+      appUrl,
+    })
+      .then((result) =>
+        recordNotification({
+          type: 'new_message',
+          recipientEmail: clientEmail,
+          threadId: thread.id,
+          status: result.success ? 'sent' : 'failed',
+          error: result.error,
+          createdAt: new Date(),
+        })
+      )
+      .catch((err) => console.error('[messages] Notification error:', err))
 
     return NextResponse.json(
       {
