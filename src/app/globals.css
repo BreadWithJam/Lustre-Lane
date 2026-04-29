@@ -3,24 +3,104 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #8b5a3c;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f1eb;
+  --secondary-foreground: #8b5a3c;
+  --accent: #d4af37;
+  --accent-foreground: #ffffff;
+  --muted: #f8f6f3;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
+  --input: #f9fafb;
+  --ring: #8b5a3c;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  /* Custom salon color palette */
+  --color-salon-brown: #8b5a3c;
+  --color-salon-cream: #f5f1eb;
+  --color-salon-gold: #d4af37;
+  --color-salon-warm-gray: #9ca3af;
+  
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  
+  /* Custom breakpoints for salon microsite */
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  
+  /* Spacing for mobile-first design */
+  --spacing-safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  
+  /* Animation durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #a67c5a;
+    --secondary: #1a1a1a;
+    --muted: #262626;
+    --border: #404040;
+    --input: #262626;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Custom utility classes for salon microsite */
+.salon-gradient {
+  background: linear-gradient(135deg, var(--color-salon-brown) 0%, var(--color-salon-gold) 100%);
+}
+
+.salon-text-gradient {
+  background: linear-gradient(135deg, var(--color-salon-brown) 0%, var(--color-salon-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Mobile-first responsive utilities */
+.mobile-safe-area {
+  padding-bottom: var(--spacing-safe-area-inset-bottom);
+}
+
+/* Smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
 }
