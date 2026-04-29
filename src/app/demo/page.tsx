@@ -192,7 +192,7 @@ export default function DemoPage() {
               </p>
               <div className="bg-salon-cream p-6 rounded-lg">
                 <ol className="text-left space-y-2 text-salon-warm-gray">
-                  <li>1. Set up a Supabase project and configure environment variables</li>
+                  <li>1. Set up a Firebase project and configure environment variables</li>
                   <li>2. Run the database initialization script: <code className="bg-white px-2 py-1 rounded">npm run db:init</code></li>
                   <li>3. Navigate to the services page: <Link href="/services" className="text-salon-brown hover:text-salon-gold">/services</Link></li>
                 </ol>

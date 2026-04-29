@@ -9,8 +9,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
-  getCountFromServer,
   Timestamp,
   type QueryConstraint,
 } from 'firebase/firestore'
