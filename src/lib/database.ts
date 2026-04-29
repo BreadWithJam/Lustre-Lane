@@ -393,7 +393,10 @@ function validateMessageData(message: MessageInsert): void {
   if (!message.sender_type) throw new ValidationError('Sender type is required', 'sender_type')
   if (!['client', 'admin'].includes(message.sender_type))
     throw new ValidationError('Invalid sender type', 'sender_type')
-  if (!message.content?.trim()) throw new ValidationError('Message content is required', 'content')
+  // Content can be empty only when attachments are present
+  const hasAttachments = Array.isArray(message.attachments) && message.attachments.length > 0
+  if (!message.content?.trim() && !hasAttachments)
+    throw new ValidationError('Message content is required when no attachments are provided', 'content')
 }
 
 // ---------------------------------------------------------------------------
