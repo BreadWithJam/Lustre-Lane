@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const metricsOnly = searchParams.get('metrics') === 'true'
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 200)
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10) || 50, 200)
 
     if (metricsOnly) {
       const metrics = await getNotificationMetrics()

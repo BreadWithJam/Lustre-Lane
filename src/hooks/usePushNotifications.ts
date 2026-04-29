@@ -4,7 +4,7 @@
  */
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface PushNotificationState {
   isSupported: boolean
@@ -23,6 +23,10 @@ export function usePushNotifications(userId: string | null) {
     error: null,
   })
 
+  // Use a ref so subscribe/unsubscribe callbacks always see the latest value
+  // without needing to be recreated on every state change
+  const isSupportedRef = useRef(false)
+
   useEffect(() => {
     const supported =
       typeof window !== 'undefined' &&
@@ -30,6 +34,7 @@ export function usePushNotifications(userId: string | null) {
       'PushManager' in window &&
       'Notification' in window
 
+    isSupportedRef.current = supported
     setState((prev) => ({
       ...prev,
       isSupported: supported,
@@ -38,7 +43,7 @@ export function usePushNotifications(userId: string | null) {
   }, [])
 
   const subscribe = useCallback(async () => {
-    if (!state.isSupported || !userId) return
+    if (!isSupportedRef.current || !userId) return
 
     setState((prev) => ({ ...prev, isLoading: true, error: null }))
 
@@ -108,7 +113,7 @@ export function usePushNotifications(userId: string | null) {
         error: error instanceof Error ? error.message : 'Failed to subscribe',
       }))
     }
-  }, [state.isSupported, userId])
+  }, [userId])
 
   const unsubscribe = useCallback(async () => {
     if (!userId) return

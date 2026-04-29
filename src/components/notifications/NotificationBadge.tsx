@@ -7,25 +7,35 @@
 import { useNotificationBadge } from '@/hooks/useNotificationBadge'
 
 interface NotificationBadgeProps {
-  /** Override the count (e.g. from a parent that already has the data) */
+  /** Override the count (e.g. from a parent that already has the data). When provided, skips the Firestore subscription. */
   count?: number
   /** Maximum number to display before showing "N+" */
   max?: number
   className?: string
 }
 
-export function NotificationBadge({ count, max = 99, className = '' }: NotificationBadgeProps) {
+/** Inner component that subscribes to Firestore — only rendered when no explicit count is given. */
+function LiveBadge({ max, className }: { max: number; className: string }) {
   const { unreadCount } = useNotificationBadge()
-  const displayCount = count ?? unreadCount
+  return <BadgeDisplay count={unreadCount} max={max} className={className} />
+}
 
-  if (displayCount === 0) return null
-
-  const label = displayCount > max ? `${max}+` : String(displayCount)
+function BadgeDisplay({
+  count,
+  max,
+  className,
+}: {
+  count: number
+  max: number
+  className: string
+}) {
+  if (count === 0) return null
+  const label = count > max ? `${max}+` : String(count)
 
   return (
     <span
       role="status"
-      aria-label={`${displayCount} unread notification${displayCount !== 1 ? 's' : ''}`}
+      aria-label={`${count} unread notification${count !== 1 ? 's' : ''}`}
       className={`
         inline-flex items-center justify-center
         min-w-[18px] h-[18px] px-1
@@ -37,4 +47,13 @@ export function NotificationBadge({ count, max = 99, className = '' }: Notificat
       {label}
     </span>
   )
+}
+
+export function NotificationBadge({ count, max = 99, className = '' }: NotificationBadgeProps) {
+  // When an explicit count is provided, render statically without a Firestore listener
+  if (count !== undefined) {
+    return <BadgeDisplay count={count} max={max} className={className} />
+  }
+
+  return <LiveBadge max={max} className={className} />
 }
