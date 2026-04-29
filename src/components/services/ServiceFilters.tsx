@@ -51,16 +51,19 @@ export function ServiceFilters({
       {/* Search Bar */}
       <div className="relative max-w-md mx-auto">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg className="h-5 w-5 text-salon-warm-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-5 w-5 text-salon-warm-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
+        <label htmlFor="service-search" className="sr-only">Search services</label>
         <input
-          type="text"
+          id="service-search"
+          type="search"
           placeholder="Search services, stylists..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-10 pr-4 py-3 border border-salon-cream rounded-lg focus:ring-2 focus:ring-salon-brown focus:border-transparent"
+          aria-label="Search services and stylists"
         />
       </div>
 
@@ -68,14 +71,16 @@ export function ServiceFilters({
       <div className="text-center">
         <button
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+          aria-expanded={showAdvancedFilters}
+          aria-controls="advanced-filters"
           className="inline-flex items-center gap-2 text-salon-brown hover:text-salon-gold transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
           </svg>
           <span>{showAdvancedFilters ? 'Hide' : 'Show'} Filters</span>
           {hasActiveFilters && (
-            <span className="bg-salon-brown text-white text-xs px-2 py-1 rounded-full">
+            <span className="bg-salon-brown text-white text-xs px-2 py-1 rounded-full" aria-label="Filters active">
               Active
             </span>
           )}
@@ -84,16 +89,18 @@ export function ServiceFilters({
 
       {/* Advanced Filters */}
       {showAdvancedFilters && (
-        <div className="bg-salon-cream p-6 rounded-lg space-y-6">
+        <div id="advanced-filters" className="bg-salon-cream p-6 rounded-lg space-y-6" role="group" aria-label="Advanced filters">
           <div className="grid md:grid-cols-3 gap-6">
             {/* Price Range */}
-            <div>
-              <label className="block text-sm font-medium text-salon-brown mb-3">
+            <fieldset>
+              <legend className="block text-sm font-medium text-salon-brown mb-3">
                 Price Range
-              </label>
+              </legend>
               <div className="space-y-2">
                 <div className="flex gap-2">
+                  <label htmlFor="price-min" className="sr-only">Minimum price</label>
                   <input
+                    id="price-min"
                     type="number"
                     placeholder="Min"
                     value={filters.priceRange?.[0] || ''}
@@ -103,8 +110,11 @@ export function ServiceFilters({
                       handlePriceRangeChange(min, max)
                     }}
                     className="flex-1 px-3 py-2 border border-salon-cream rounded focus:ring-2 focus:ring-salon-brown focus:border-transparent"
+                    aria-label="Minimum price"
                   />
+                  <label htmlFor="price-max" className="sr-only">Maximum price</label>
                   <input
+                    id="price-max"
                     type="number"
                     placeholder="Max"
                     value={filters.priceRange?.[1] || ''}
@@ -114,28 +124,31 @@ export function ServiceFilters({
                       handlePriceRangeChange(min, max)
                     }}
                     className="flex-1 px-3 py-2 border border-salon-cream rounded focus:ring-2 focus:ring-salon-brown focus:border-transparent"
+                    aria-label="Maximum price"
                   />
                 </div>
-                <div className="flex gap-2 text-xs">
+                <div className="flex gap-2 text-xs" role="group" aria-label="Quick price presets">
                   {[50, 100, 200, 300].map((price) => (
                     <button
                       key={price}
                       onClick={() => handlePriceRangeChange(0, price)}
                       className="px-2 py-1 bg-white text-salon-brown rounded hover:bg-salon-brown hover:text-white transition-colors"
+                      aria-label={`Under $${price}`}
                     >
                       Under ${price}
                     </button>
                   ))}
                 </div>
               </div>
-            </div>
+            </fieldset>
 
             {/* Duration */}
             <div>
-              <label className="block text-sm font-medium text-salon-brown mb-3">
+              <label htmlFor="duration-filter" className="block text-sm font-medium text-salon-brown mb-3">
                 Max Duration
               </label>
               <select
+                id="duration-filter"
                 value={filters.duration || ''}
                 onChange={(e) => handleDurationChange(e.target.value ? parseInt(e.target.value) : undefined)}
                 className="w-full px-3 py-2 border border-salon-cream rounded focus:ring-2 focus:ring-salon-brown focus:border-transparent"
@@ -151,10 +164,11 @@ export function ServiceFilters({
 
             {/* Stylist */}
             <div>
-              <label className="block text-sm font-medium text-salon-brown mb-3">
+              <label htmlFor="stylist-filter" className="block text-sm font-medium text-salon-brown mb-3">
                 Stylist
               </label>
               <input
+                id="stylist-filter"
                 type="text"
                 placeholder="Search by stylist name"
                 value={filters.stylist || ''}

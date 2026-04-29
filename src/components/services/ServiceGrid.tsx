@@ -103,11 +103,12 @@ export function ServiceGrid() {
   return (
     <div className="space-y-8">
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2 justify-center">
+      <div className="flex flex-wrap gap-2 justify-center" role="group" aria-label="Filter by category">
         {categories.map((category) => (
           <button
             key={category.value}
             onClick={() => setSelectedCategory(category.value)}
+            aria-pressed={selectedCategory === category.value}
             className={`px-6 py-3 rounded-full font-medium transition-colors ${
               selectedCategory === category.value
                 ? 'bg-salon-brown text-white'
@@ -129,32 +130,43 @@ export function ServiceGrid() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          role="status"
+          aria-label="Loading services"
+          aria-live="polite"
+        >
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="animate-pulse">
+            <div key={index} className="animate-pulse" aria-hidden="true">
               <div className="bg-salon-cream rounded-lg h-80"></div>
             </div>
           ))}
+          <span className="sr-only">Loading services…</span>
         </div>
       )}
 
       {/* Services Grid */}
       {!isLoading && (
-        <>
+        <div aria-live="polite" aria-atomic="false">
           {filteredServices.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              role="list"
+              aria-label={`${filteredServices.length} service${filteredServices.length !== 1 ? 's' : ''} found`}
+            >
               {filteredServices.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  onSelect={() => setSelectedService(service)}
-                />
+                <div key={service.id} role="listitem">
+                  <ServiceCard
+                    service={service}
+                    onSelect={() => setSelectedService(service)}
+                  />
+                </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="text-center py-12" role="status">
               <div className="text-salon-warm-gray mb-4">
-                <span className="text-4xl">🔍</span>
+                <span className="text-4xl" aria-hidden="true">🔍</span>
               </div>
               <h3 className="text-xl font-semibold text-salon-brown mb-2">
                 No services found
@@ -164,7 +176,7 @@ export function ServiceGrid() {
               </p>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Service Detail Drawer */}
