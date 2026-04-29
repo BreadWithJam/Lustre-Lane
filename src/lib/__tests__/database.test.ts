@@ -9,36 +9,11 @@ import {
 } from '../database'
 import type { ServiceRow, GalleryImageRow, MessageThreadRow, MessageRow } from '@/types'
 
-// Mock Supabase client
-vi.mock('../supabase', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn()
-        })),
-        order: vi.fn(() => ({
-          eq: vi.fn()
-        }))
-      })),
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn()
-        }))
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: vi.fn()
-          }))
-        }))
-      })),
-      delete: vi.fn(() => ({
-        eq: vi.fn()
-      }))
-    }))
-  },
-  createServerClient: vi.fn()
+// Mock Firebase so the module can be imported without real credentials
+vi.mock('../firebase', () => ({
+  db: {},
+  auth: {},
+  storage: {},
 }))
 
 describe('Database Utilities', () => {

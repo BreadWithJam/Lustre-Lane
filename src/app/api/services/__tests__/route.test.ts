@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
 import { GET, POST } from '../route'
 
+// Mock Firebase so the module can be imported without real credentials
+vi.mock('@/lib/firebase', () => ({
+  db: {},
+  auth: {},
+  storage: {},
+}))
+
 // Mock the database module
 vi.mock('@/lib/database', () => ({
   servicesDb: {
