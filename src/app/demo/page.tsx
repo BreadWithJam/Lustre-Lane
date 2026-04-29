@@ -11,7 +11,7 @@ export default function DemoPage() {
           </h1>
           <p className="text-xl text-salon-warm-gray max-w-2xl mx-auto mb-8">
             This demo showcases the service management system implementation. 
-            In a production environment, this would connect to a live Supabase database.
+            In a production environment, this would connect to a live Firebase database.
           </p>
           <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
             <h2 className="text-2xl font-semibold text-salon-brown mb-4">
