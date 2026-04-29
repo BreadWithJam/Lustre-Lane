@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "@/lib/react-query";
+import { Header } from "@/components/navigation/Header";
+import { BottomNav } from "@/components/navigation/BottomNav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -40,7 +42,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ReactQueryProvider>
-          {children}
+          <Header />
+          {/* pb-16 on mobile to clear the sticky bottom nav */}
+          <div className="flex-1 flex flex-col pb-16 md:pb-0">
+            {children}
+          </div>
+          <BottomNav />
         </ReactQueryProvider>
       </body>
     </html>
