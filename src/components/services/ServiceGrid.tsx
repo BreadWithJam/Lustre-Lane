@@ -1,41 +1,13 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { ServiceCard } from './ServiceCard'
 import { ServiceDetailDrawer } from './ServiceDetailDrawer'
 import { ServiceFilters } from './ServiceFilters'
+import { ServiceGridSkeleton } from '@/components/Skeleton'
+import { InlineError } from '@/components/ErrorBoundary'
+import { useServices } from '@/hooks/useServices'
 import type { Service, ServiceCategory, ServiceFilters as ServiceFiltersType } from '@/types'
-
-async function fetchServices(filters?: ServiceFiltersType): Promise<Service[]> {
-  const params = new URLSearchParams()
-  
-  if (filters?.category) {
-    params.append('category', filters.category)
-  }
-  
-  if (filters?.priceRange) {
-    params.append('priceMin', filters.priceRange[0].toString())
-    params.append('priceMax', filters.priceRange[1].toString())
-  }
-  
-  if (filters?.duration) {
-    params.append('duration', filters.duration.toString())
-  }
-  
-  if (filters?.stylist) {
-    params.append('stylist', filters.stylist)
-  }
-
-  const response = await fetch(`/api/services?${params.toString()}`)
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch services')
-  }
-  
-  const result = await response.json()
-  return result.data
-}
 
 const categories: { value: ServiceCategory | 'all'; label: string }[] = [
   { value: 'all', label: 'All Services' },
@@ -54,23 +26,13 @@ export function ServiceGrid() {
   // Combine category selection with other filters
   const queryFilters = useMemo(() => {
     const combinedFilters: ServiceFiltersType = { ...filters }
-    
     if (selectedCategory !== 'all') {
       combinedFilters.category = selectedCategory
     }
-    
     return combinedFilters
   }, [filters, selectedCategory])
 
-  const { 
-    data: services = [], 
-    isLoading, 
-    error 
-  } = useQuery({
-    queryKey: ['services', queryFilters],
-    queryFn: () => fetchServices(queryFilters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
+  const { data: services = [], isLoading, error } = useServices(queryFilters)
 
   // Filter services by search query
   const filteredServices = useMemo(() => {
@@ -86,17 +48,10 @@ export function ServiceGrid() {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <div className="text-red-600 mb-4">
-          <span className="text-4xl">⚠️</span>
-        </div>
-        <h3 className="text-xl font-semibold text-salon-brown mb-2">
-          Unable to load services
-        </h3>
-        <p className="text-salon-warm-gray">
-          Please try again later or contact support if the problem persists.
-        </p>
-      </div>
+      <InlineError
+        message="Unable to load services. Please try again later."
+        onRetry={() => window.location.reload()}
+      />
     )
   }
 
@@ -129,21 +84,7 @@ export function ServiceGrid() {
       />
 
       {/* Loading State */}
-      {isLoading && (
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          role="status"
-          aria-label="Loading services"
-          aria-live="polite"
-        >
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="animate-pulse" aria-hidden="true">
-              <div className="bg-salon-cream rounded-lg h-80"></div>
-            </div>
-          ))}
-          <span className="sr-only">Loading services…</span>
-        </div>
-      )}
+      {isLoading && <ServiceGridSkeleton />}
 
       {/* Services Grid */}
       {!isLoading && (

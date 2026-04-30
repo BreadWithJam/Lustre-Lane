@@ -1,28 +1,17 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { GalleryFilters } from './GalleryFilters'
 import { ImageLightbox } from './ImageLightbox'
 import { LookbookPlaylist, type Lookbook } from './LookbookPlaylist'
+import { GalleryGridSkeleton } from '@/components/Skeleton'
+import { InlineError } from '@/components/ErrorBoundary'
+import { useGalleryImages } from '@/hooks/useGallery'
 import type { GalleryImage, GalleryFilters as GalleryFiltersType } from '@/types'
 
 const PAGE_SIZE = 12
 
-async function fetchGalleryImages(filters: GalleryFiltersType): Promise<GalleryImage[]> {
-  const params = new URLSearchParams()
-  if (filters.category) params.append('category', filters.category)
-  if (filters.tags?.length) params.append('tags', filters.tags.join(','))
-  if (filters.featured) params.append('featured', 'true')
-
-  const res = await fetch(`/api/gallery?${params.toString()}`)
-  if (!res.ok) throw new Error('Failed to fetch gallery images')
-  const result = await res.json()
-  return result.data as GalleryImage[]
-}
-
-/** Build simple lookbook groupings from the full image list */
 function buildLookbooks(images: GalleryImage[]): Lookbook[] {
   const grouped = new Map<string, GalleryImage[]>()
 
@@ -66,11 +55,7 @@ export function GalleryGrid() {
   const [showLookbooks, setShowLookbooks] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const { data: allImages = [], isLoading, error } = useQuery({
-    queryKey: ['gallery', filters],
-    queryFn: () => fetchGalleryImages(filters),
-    staleTime: 5 * 60 * 1000,
-  })
+  const { data: allImages = [], isLoading, error } = useGalleryImages(filters)
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -134,13 +119,10 @@ export function GalleryGrid() {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <span className="text-4xl">⚠️</span>
-        <h3 className="text-xl font-semibold text-salon-brown mt-4 mb-2">
-          Unable to load gallery
-        </h3>
-        <p className="text-salon-warm-gray">Please try again later.</p>
-      </div>
+      <InlineError
+        message="Unable to load gallery. Please try again later."
+        onRetry={() => window.location.reload()}
+      />
     )
   }
 
@@ -177,25 +159,7 @@ export function GalleryGrid() {
       {!showLookbooks && <div id="lookbook-section" hidden />}
 
       {/* Loading skeleton */}
-      {isLoading && (
-        <div
-          className="columns-2 md:columns-3 lg:columns-4"
-          style={{ columnGap: '12px' }}
-          role="status"
-          aria-label="Loading gallery images"
-          aria-live="polite"
-        >
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="animate-pulse bg-salon-cream rounded-lg break-inside-avoid mb-3"
-              style={{ height: `${180 + (i % 3) * 60}px` }}
-              aria-hidden="true"
-            />
-          ))}
-          <span className="sr-only">Loading gallery images…</span>
-        </div>
-      )}
+      {isLoading && <GalleryGridSkeleton />}
 
       {/* Masonry grid */}
       {!isLoading && visibleImages.length > 0 && (

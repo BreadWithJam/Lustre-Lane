@@ -1,4 +1,5 @@
 import { ServiceGrid } from '@/components/services/ServiceGrid'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export default function ServicesPage() {
   return (
@@ -19,7 +20,9 @@ export default function ServicesPage() {
       {/* Services Grid Section */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
-          <ServiceGrid />
+          <ErrorBoundary>
+            <ServiceGrid />
+          </ErrorBoundary>
         </div>
       </section>
     </main>
