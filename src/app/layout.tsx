@@ -5,6 +5,7 @@ import { ReactQueryProvider } from "@/lib/react-query";
 import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { WebVitals } from "@/components/WebVitals";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -54,7 +55,9 @@ export default function RootLayout({
           <Header />
           {/* pb-16 on mobile to clear the sticky bottom nav */}
           <div id="main-content" className="flex-1 flex flex-col pb-16 md:pb-0" tabIndex={-1}>
-            {children}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </div>
           <BottomNav />
         </ReactQueryProvider>

@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { servicesDb, transformServiceRowToService } from '@/lib/database'
+import { validateServiceForm, sanitizeText } from '@/lib/validation'
+import { createErrorResponse, ApiErrors } from '@/lib/api-errors'
+import { checkRateLimit, getRateLimitKey, RateLimits } from '@/lib/rate-limit'
 import type { ServiceInsert } from '@/types'
 
 export async function GET(request: NextRequest) {
+  // Rate limit general API access
+  const rateLimit = checkRateLimit(getRateLimitKey(request, 'api'), RateLimits.api)
+  if (!rateLimit.allowed) {
+    return createErrorResponse(ApiErrors.rateLimitExceeded())
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
@@ -53,28 +62,42 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching services:', error)
-    return NextResponse.json(
-      { 
-        error: 'Failed to fetch services',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error, 'Failed to fetch services')
   }
 }
 
 export async function POST(request: NextRequest) {
+  const rateLimit = checkRateLimit(getRateLimitKey(request, 'api'), RateLimits.api)
+  if (!rateLimit.allowed) {
+    return createErrorResponse(ApiErrors.rateLimitExceeded())
+  }
+
   try {
     const body = await request.json()
-    
-    // Transform camelCase to snake_case for database
-    const serviceData: ServiceInsert = {
+
+    // Validate before touching the database
+    const validation = validateServiceForm({
       name: body.name,
-      description: body.description || null,
       category: body.category,
       price: body.price,
       duration: body.duration,
-      stylist_name: body.stylistName || null,
+      description: body.description,
+      stylistName: body.stylistName,
+    })
+    if (!validation.valid) {
+      return createErrorResponse(
+        ApiErrors.validationError('Invalid service data', validation.errors as Record<string, unknown>)
+      )
+    }
+
+    // Transform camelCase to snake_case for database
+    const serviceData: ServiceInsert = {
+      name: sanitizeText(body.name),
+      description: body.description ? sanitizeText(body.description) : null,
+      category: body.category,
+      price: body.price,
+      duration: body.duration,
+      stylist_name: body.stylistName ? sanitizeText(body.stylistName) : null,
       image_url: body.imageUrl || null,
       is_active: body.isActive ?? true
     }
@@ -88,12 +111,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
   } catch (error) {
     console.error('Error creating service:', error)
-    return NextResponse.json(
-      { 
-        error: 'Failed to create service',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error, 'Failed to create service')
   }
 }
