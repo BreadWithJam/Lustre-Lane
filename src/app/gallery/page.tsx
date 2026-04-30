@@ -1,4 +1,5 @@
 import { GalleryGrid } from '@/components/gallery/GalleryGrid'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export const metadata = {
   title: 'Style Gallery | Salon',
@@ -24,7 +25,9 @@ export default function GalleryPage() {
       {/* Gallery */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <GalleryGrid />
+          <ErrorBoundary>
+            <GalleryGrid />
+          </ErrorBoundary>
         </div>
       </section>
     </main>
