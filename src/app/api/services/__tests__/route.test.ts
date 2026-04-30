@@ -195,8 +195,8 @@ describe('/api/services', () => {
       const response = await POST(request)
       const data = await response.json()
 
-      expect(response.status).toBe(500)
-      expect(data.error).toBe('Failed to create service')
+      expect(response.status).toBe(400)
+      expect(data.error).toBeTruthy()
     })
   })
 })

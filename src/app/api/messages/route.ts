@@ -7,6 +7,9 @@ import {
 } from '@/lib/database'
 import { sendNewMessageNotification } from '@/lib/email'
 import { recordNotification } from '@/lib/notifications'
+import { checkRateLimit, getRateLimitKey, RateLimits } from '@/lib/rate-limit'
+import { validateContactForm, validateMessageForm, sanitizeText } from '@/lib/validation'
+import { createErrorResponse, ApiErrors } from '@/lib/api-errors'
 import type { MessageThreadInsert, MessageInsert } from '@/types'
 
 // GET /api/messages - list all threads (admin) or threads by email
@@ -38,23 +41,48 @@ export async function GET(request: NextRequest) {
 
 // POST /api/messages - create a new thread + first message
 export async function POST(request: NextRequest) {
+  // Rate limit message creation to prevent spam
+  const rateLimitKey = getRateLimitKey(request, 'messages')
+  const rateLimit = checkRateLimit(rateLimitKey, RateLimits.messages)
+  if (!rateLimit.allowed) {
+    return createErrorResponse(ApiErrors.rateLimitExceeded())
+  }
+
   try {
     const body = await request.json()
 
     const { clientEmail, clientName, clientPhone, content, senderType, senderName, attachments } = body
 
-    if (!clientEmail) {
-      return NextResponse.json({ error: 'clientEmail is required' }, { status: 400 })
+    // Validate contact info
+    const contactValidation = validateContactForm({
+      name: clientName || '',
+      email: clientEmail || '',
+      phone: clientPhone,
+      message: content || '',
+    })
+    if (!contactValidation.valid) {
+      return createErrorResponse(
+        ApiErrors.validationError('Invalid request data', contactValidation.errors as Record<string, unknown>)
+      )
     }
-    if (!content) {
-      return NextResponse.json({ error: 'content is required' }, { status: 400 })
+
+    // Validate message content
+    const messageValidation = validateMessageForm({ content, attachments })
+    if (!messageValidation.valid) {
+      return createErrorResponse(
+        ApiErrors.validationError('Invalid message data', messageValidation.errors as Record<string, unknown>)
+      )
     }
+
+    // Sanitize user-supplied text
+    const sanitizedContent = sanitizeText(content || '')
+    const sanitizedName = clientName ? sanitizeText(clientName) : null
 
     // Create thread
     const threadInsert: MessageThreadInsert = {
-      client_email: clientEmail,
-      client_name: clientName || null,
-      client_phone: clientPhone || null,
+      client_email: clientEmail.trim().toLowerCase(),
+      client_name: sanitizedName,
+      client_phone: clientPhone?.trim() || null,
       status: 'open',
     }
     const thread = await messageThreadsDb.create(threadInsert)
@@ -63,8 +91,8 @@ export async function POST(request: NextRequest) {
     const messageInsert: MessageInsert = {
       thread_id: thread.id,
       sender_type: senderType || 'client',
-      sender_name: senderName || clientName || null,
-      content,
+      sender_name: senderName ? sanitizeText(senderName) : sanitizedName,
+      content: sanitizedContent,
       attachments: attachments || [],
       read_at: null,
     }
@@ -103,9 +131,6 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error('Error creating message thread:', error)
-    return NextResponse.json(
-      { error: 'Failed to create message thread', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    return createErrorResponse(error, 'Failed to create message thread')
   }
 }
