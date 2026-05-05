@@ -1,6 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { SearchBar } from '@/components/navigation/SearchBar'
+import warmCaramel from '@assets/images/warm caramel layers.jpg'
+import sleekBob from '@assets/images/sleek bob with copper gloss.jpg'
+import dimensionalBalayage from '@assets/images/dimensional balayage.jpg'
+import editorialUpdo from '@assets/images/editorial updo.jpg'
 
 const serviceHighlights = [
   {
@@ -24,10 +28,10 @@ const serviceHighlights = [
 ]
 
 const galleryPreview = [
-  { src: '/gallery/look-01.jpg', alt: 'Warm caramel layers' },
-  { src: '/gallery/look-02.jpg', alt: 'Sleek bob with copper gloss' },
-  { src: '/gallery/look-03.jpg', alt: 'Dimensional balayage' },
-  { src: '/gallery/look-04.jpg', alt: 'Editorial updo' },
+  { src: warmCaramel, alt: 'Warm caramel layers' },
+  { src: sleekBob, alt: 'Sleek bob with copper gloss' },
+  { src: dimensionalBalayage, alt: 'Dimensional balayage' },
+  { src: editorialUpdo, alt: 'Editorial updo' },
 ]
 
 const contactChannels = [
