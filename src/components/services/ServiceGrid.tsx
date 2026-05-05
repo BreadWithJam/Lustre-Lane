@@ -1,13 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { ServiceCard } from './ServiceCard'
-import { ServiceDetailDrawer } from './ServiceDetailDrawer'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
 import { ServiceFilters } from './ServiceFilters'
-import { ServiceGridSkeleton } from '@/components/Skeleton'
-import { InlineError } from '@/components/ErrorBoundary'
-import { useServices } from '@/hooks/useServices'
-import type { Service, ServiceCategory, ServiceFilters as ServiceFiltersType } from '@/types'
+import { catalogServices } from '@/data/services'
+import type { ServiceCategory, ServiceFilters as ServiceFiltersType } from '@/types'
 
 const categories: { value: ServiceCategory | 'all'; label: string }[] = [
   { value: 'all', label: 'All Services' },
@@ -19,40 +16,51 @@ const categories: { value: ServiceCategory | 'all'; label: string }[] = [
 
 export function ServiceGrid() {
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | 'all'>('all')
-  const [selectedService, setSelectedService] = useState<Service | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<ServiceFiltersType>({})
 
-  // Combine category selection with other filters
-  const queryFilters = useMemo(() => {
-    const combinedFilters: ServiceFiltersType = { ...filters }
-    if (selectedCategory !== 'all') {
-      combinedFilters.category = selectedCategory
-    }
-    return combinedFilters
-  }, [filters, selectedCategory])
-
-  const { data: services = [], isLoading, error } = useServices(queryFilters)
-
-  // Filter services by search query
   const filteredServices = useMemo(() => {
-    if (!searchQuery.trim()) return services
-    
-    const query = searchQuery.toLowerCase()
-    return services.filter(service => 
-      service.name.toLowerCase().includes(query) ||
-      service.description?.toLowerCase().includes(query) ||
-      service.stylistName?.toLowerCase().includes(query)
-    )
-  }, [services, searchQuery])
+    let list = selectedCategory === 'all'
+      ? catalogServices
+      : catalogServices.filter((service) => service.category === selectedCategory)
 
-  if (error) {
-    return (
-      <InlineError
-        message="Unable to load services. Please try again later."
-        onRetry={() => window.location.reload()}
-      />
-    )
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      list = list.filter((service) =>
+        service.name.toLowerCase().includes(query) ||
+        service.description.toLowerCase().includes(query)
+      )
+    }
+
+    if (filters.priceRange) {
+      const [min, max] = filters.priceRange
+      list = list.filter((service) => service.price >= min && service.price <= max)
+    }
+
+    if (filters.duration) {
+      list = list.filter((service) => service.duration <= filters.duration!)
+    }
+
+    if (filters.stylist) {
+      const stylistQuery = filters.stylist.toLowerCase()
+      list = list.filter((service) => service.description.toLowerCase().includes(stylistQuery))
+    }
+
+    return list
+  }, [selectedCategory, searchQuery, filters])
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(price)
+
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`
+    const hours = Math.floor(minutes / 60)
+    const remainder = minutes % 60
+    return remainder ? `${hours}h ${remainder}m` : `${hours}h`
   }
 
   return (
@@ -83,51 +91,62 @@ export function ServiceGrid() {
         onFiltersChange={setFilters}
       />
 
-      {/* Loading State */}
-      {isLoading && <ServiceGridSkeleton />}
-
       {/* Services Grid */}
-      {!isLoading && (
-        <div aria-live="polite" aria-atomic="false">
-          {filteredServices.length > 0 ? (
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              role="list"
-              aria-label={`${filteredServices.length} service${filteredServices.length !== 1 ? 's' : ''} found`}
-            >
-              {filteredServices.map((service) => (
-                <div key={service.id} role="listitem">
-                  <ServiceCard
-                    service={service}
-                    onSelect={() => setSelectedService(service)}
-                  />
+      <div aria-live="polite" aria-atomic="false">
+        {filteredServices.length > 0 ? (
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            role="list"
+            aria-label={`${filteredServices.length} service${filteredServices.length !== 1 ? 's' : ''} found`}
+          >
+            {filteredServices.map((service) => (
+              <article
+                key={service.id}
+                role="listitem"
+                className="rounded-2xl border border-salon-cream bg-white/90 p-6 shadow-[0_12px_30px_rgba(20,8,5,0.08)] backdrop-blur-sm flex flex-col gap-4 hover:-translate-y-1 transition-transform"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-salon-warm-gray mb-1">
+                      {service.category}
+                    </p>
+                    <h3 className="text-2xl font-serif text-salon-brown">{service.name}</h3>
+                    <p className="text-salon-warm-gray mt-2 text-sm leading-relaxed">
+                      {service.description}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm uppercase tracking-[0.3em] text-salon-warm-gray">From</p>
+                    <p className="text-2xl font-semibold text-salon-brown">{formatPrice(service.price)}</p>
+                    <p className="text-xs text-salon-warm-gray mt-1">{formatDuration(service.duration)}</p>
+                  </div>
                 </div>
-              ))}
+                <div className="flex items-center justify-between pt-4 border-t border-salon-cream">
+                  <span className="text-sm text-salon-warm-gray">Consult + finish included</span>
+                  <Link
+                    href="/chat"
+                    className="rounded-full bg-salon-brown px-4 py-2 text-sm font-semibold text-white hover:bg-salon-brown/90"
+                  >
+                    Book
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12" role="status">
+            <div className="text-salon-warm-gray mb-4">
+              <span className="text-4xl" aria-hidden="true">🔍</span>
             </div>
-          ) : (
-            <div className="text-center py-12" role="status">
-              <div className="text-salon-warm-gray mb-4">
-                <span className="text-4xl" aria-hidden="true">🔍</span>
-              </div>
-              <h3 className="text-xl font-semibold text-salon-brown mb-2">
-                No services found
-              </h3>
-              <p className="text-salon-warm-gray">
-                Try adjusting your search or filter criteria.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Service Detail Drawer */}
-      {selectedService && (
-        <ServiceDetailDrawer
-          service={selectedService}
-          isOpen={!!selectedService}
-          onClose={() => setSelectedService(null)}
-        />
-      )}
+            <h3 className="text-xl font-semibold text-salon-brown mb-2">
+              No services found
+            </h3>
+            <p className="text-salon-warm-gray">
+              Try adjusting your search or filter criteria.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

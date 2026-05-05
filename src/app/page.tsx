@@ -83,27 +83,33 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative rounded-3xl bg-salon-cream p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)] flex flex-col gap-8">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-salon-warm-gray mb-2">Sessions This Week</p>
-              <p className="text-5xl font-serif text-salon-brown">48</p>
-            </div>
-            <div className="space-y-3">
-              {[ 'Cuts & Shaping', 'Color Studio', 'Editorial Styling' ].map((item) => (
-                <div key={item} className="flex items-center justify-between text-sm text-salon-warm-gray">
-                  <span>{item}</span>
-                  <span className="text-salon-brown">Available</span>
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-br from-salon-cream/40 via-white/30 to-salon-gold/25 opacity-90 blur-3xl" aria-hidden="true" />
+            <div className="relative rounded-[28px] border border-white/40 bg-salon-cream shadow-[0_30px_80px_rgba(38,20,8,0.18)] flex flex-col gap-8 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/5 opacity-90 backdrop-blur-sm" aria-hidden="true" />
+              <div className="relative p-8 space-y-8">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-salon-warm-gray mb-2">Sessions This Week</p>
+                  <p className="text-5xl font-serif text-salon-brown">48</p>
                 </div>
-              ))}
-            </div>
-            <div className="rounded-2xl bg-white p-4">
-              <p className="text-sm text-salon-warm-gray">Chat directly with a stylist for custom recommendations.</p>
-              <Link
-                href="/chat"
-                className="mt-3 inline-flex items-center text-sm font-semibold text-salon-brown hover:text-salon-gold"
-              >
-                Start a conversation →
-              </Link>
+                <div className="space-y-3">
+                  {[ 'Cuts & Shaping', 'Color Studio', 'Editorial Styling' ].map((item) => (
+                    <div key={item} className="flex items-center justify-between text-sm text-salon-warm-gray">
+                      <span>{item}</span>
+                      <span className="text-salon-brown">Available</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-2xl bg-white/80 p-4 shadow-inner backdrop-blur">
+                  <p className="text-sm text-salon-warm-gray">Chat directly with a stylist for custom recommendations.</p>
+                  <Link
+                    href="/chat"
+                    className="mt-3 inline-flex items-center text-sm font-semibold text-salon-brown hover:text-salon-gold"
+                  >
+                    Start a conversation →
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
