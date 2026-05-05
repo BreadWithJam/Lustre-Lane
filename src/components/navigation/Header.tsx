@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/utils'
+import LogoMark from '@assets/images/logo only.png'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -21,12 +23,17 @@ export function Header() {
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link
-          href="/"
-          className="font-serif text-xl font-bold text-salon-brown hover:text-salon-gold transition-colors"
-          aria-label="Salon home"
-        >
-          Salon
+        <Link href="/" aria-label="Lustre Lane home" className="flex items-center">
+          <Image
+            src={LogoMark}
+            alt="Lustre Lane Salon logo"
+            priority
+            width={420}
+            height={260}
+            sizes="120px"
+            className="h-14 w-auto md:h-16 object-contain"
+            style={{ width: 'auto', height: 'auto' }}
+          />
         </Link>
 
         {/* Desktop Navigation */}
