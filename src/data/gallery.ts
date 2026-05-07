@@ -5,6 +5,10 @@ import kidsHaircut from '@assets/images/kids haircut.jpg'
 import bangTrim from '@assets/images/bang trim.jpg'
 import neckCleanup from '@assets/images/neck cleanup trim.jpg'
 import keratinTreatment from '@assets/images/keratin treatment.jpg'
+import balayage from '@assets/images/balayage.png'
+import brazilianBlowout from '@assets/images/brazzilian blowout.png'
+import dandruffTreatment from '@assets/images/dandruff treatment.png'
+import lowlights from '@assets/images/lowlights.png'
 
 // Static gallery entries matching salon service categories
 export const staticGalleryImages: GalleryImage[] = [
@@ -60,6 +64,28 @@ export const staticGalleryImages: GalleryImage[] = [
     createdAt: new Date(),
   },
 
+  // Color
+  {
+    id: 'balayage',
+    imageUrl: balayage,
+    thumbnailUrl: balayage,
+    title: 'Balayage',
+    category: 'color',
+    tags: ['color', 'balayage', 'hand-painted'],
+    isFeatured: true,
+    createdAt: new Date(),
+  },
+  {
+    id: 'lowlights',
+    imageUrl: lowlights,
+    thumbnailUrl: lowlights,
+    title: 'Lowlights',
+    category: 'color',
+    tags: ['color', 'lowlights', 'depth'],
+    isFeatured: false,
+    createdAt: new Date(),
+  },
+
   // Treatments
   {
     id: 'keratin-treatment',
@@ -69,6 +95,26 @@ export const staticGalleryImages: GalleryImage[] = [
     category: 'treatments',
     tags: ['treatment', 'smoothing', 'frizz'],
     isFeatured: true,
+    createdAt: new Date(),
+  },
+  {
+    id: 'brazilian-blowout',
+    imageUrl: brazilianBlowout,
+    thumbnailUrl: brazilianBlowout,
+    title: 'Brazilian Blowout',
+    category: 'treatments',
+    tags: ['treatment', 'blowout', 'glossy'],
+    isFeatured: false,
+    createdAt: new Date(),
+  },
+  {
+    id: 'dandruff-treatment',
+    imageUrl: dandruffTreatment,
+    thumbnailUrl: dandruffTreatment,
+    title: 'Dandruff Treatment',
+    category: 'treatments',
+    tags: ['treatment', 'scalp', 'dandruff'],
+    isFeatured: false,
     createdAt: new Date(),
   },
 ]
