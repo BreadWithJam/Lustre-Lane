@@ -112,11 +112,15 @@ export function GalleryManager() {
   }
 
   function startEdit(image: GalleryImage) {
+    const imageUrl = typeof image.imageUrl === 'string' ? image.imageUrl : image.imageUrl.src
+    const thumbnailUrl = image.thumbnailUrl 
+      ? (typeof image.thumbnailUrl === 'string' ? image.thumbnailUrl : image.thumbnailUrl.src)
+      : ''
     setForm({
       title: image.title ?? '',
       description: image.description ?? '',
-      imageUrl: image.imageUrl,
-      thumbnailUrl: image.thumbnailUrl ?? '',
+      imageUrl,
+      thumbnailUrl,
       category: image.category ?? '',
       tags: image.tags.join(', '),
       isFeatured: image.isFeatured,

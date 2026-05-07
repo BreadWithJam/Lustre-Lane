@@ -67,12 +67,14 @@ export interface Service {
   updatedAt: Date
 }
 
+import type { StaticImageData } from 'next/image'
+
 export interface GalleryImage {
   id: string
   title?: string
   description?: string
-  imageUrl: string
-  thumbnailUrl?: string
+  imageUrl: string | StaticImageData
+  thumbnailUrl?: string | StaticImageData
   tags: string[]
   category?: string
   isFeatured: boolean

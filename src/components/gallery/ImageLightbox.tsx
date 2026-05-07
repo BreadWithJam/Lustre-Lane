@@ -43,10 +43,11 @@ export function ImageLightbox({
   }, [handleKeyDown])
 
   const handleShare = async () => {
+    const imageUrl = typeof image.imageUrl === 'string' ? image.imageUrl : image.imageUrl.src
     if (navigator.share) {
-      await navigator.share({ title: image.title ?? 'Style inspiration', url: image.imageUrl })
+      await navigator.share({ title: image.title ?? 'Style inspiration', url: imageUrl })
     } else {
-      await navigator.clipboard.writeText(image.imageUrl)
+      await navigator.clipboard.writeText(imageUrl)
     }
   }
 

@@ -7,6 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { GalleryImage, GalleryFilters, GalleryImageInsert, GalleryImageUpdate } from '@/types'
+import { staticGalleryImages } from '@/data/gallery'
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -23,15 +24,20 @@ export const galleryKeys = {
 // ---------------------------------------------------------------------------
 
 async function fetchGalleryImages(filters?: GalleryFilters): Promise<GalleryImage[]> {
-  const params = new URLSearchParams()
-  if (filters?.category) params.append('category', filters.category)
-  if (filters?.tags?.length) params.append('tags', filters.tags.join(','))
-  if (filters?.featured) params.append('featured', 'true')
-
-  const res = await fetch(`/api/gallery?${params}`)
-  if (!res.ok) throw new Error('Failed to fetch gallery images')
-  const json = await res.json()
-  return json.data as GalleryImage[]
+  // For now, return static images filtered client-side
+  let images = [...staticGalleryImages]
+  
+  if (filters?.category) {
+    images = images.filter(img => img.category === filters.category)
+  }
+  if (filters?.tags?.length) {
+    images = images.filter(img => filters.tags!.some(tag => img.tags.includes(tag)))
+  }
+  if (filters?.featured) {
+    images = images.filter(img => img.isFeatured)
+  }
+  
+  return images
 }
 
 async function uploadGalleryImage(data: GalleryImageInsert): Promise<GalleryImage> {
