@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
-  messageThreadsDb,
-  messagesDb,
+  adminMessageThreadsDb as messageThreadsDb,
+  adminMessagesDb as messagesDb,
   transformMessageThreadRowToMessageThread,
   transformMessageRowToMessage,
-} from '@/lib/database'
+} from '@/lib/database-admin'
 import { sendNewMessageNotification } from '@/lib/email'
-import { recordNotification } from '@/lib/notifications'
 import { checkRateLimit, getRateLimitKey, RateLimits } from '@/lib/rate-limit'
 import { validateContactForm, validateMessageForm, sanitizeText } from '@/lib/validation'
 import { createErrorResponse, ApiErrors } from '@/lib/api-errors'
@@ -107,8 +106,9 @@ export async function POST(request: NextRequest) {
       threadId: thread.id,
       appUrl,
     })
-      .then((result) =>
-        recordNotification({
+      .then(async (result) => {
+        const { recordNotification } = await import('@/lib/notifications')
+        return recordNotification({
           type: 'new_message',
           recipientEmail: clientEmail,
           threadId: thread.id,
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
           error: result.error,
           createdAt: new Date(),
         })
-      )
+      })
       .catch((err) => console.error('[messages] Notification error:', err))
 
     return NextResponse.json(

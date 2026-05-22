@@ -42,6 +42,18 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // firebase-admin uses gRPC native bindings — must not be bundled by webpack
+  serverExternalPackages: [
+    'firebase-admin',
+    'firebase-admin/app',
+    'firebase-admin/auth',
+    'firebase-admin/firestore',
+    'firebase-admin/storage',
+    '@google-cloud/firestore',
+    '@grpc/grpc-js',
+    '@grpc/proto-loader',
+  ],
+
   // Compress responses for better performance
   compress: true,
 

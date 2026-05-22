@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
-  messageThreadsDb,
-  messagesDb,
+  adminMessageThreadsDb as messageThreadsDb,
+  adminMessagesDb as messagesDb,
   transformMessageThreadRowToMessageThread,
   transformMessageRowToMessage,
-} from '@/lib/database'
+} from '@/lib/database-admin'
 import { sendNewMessageNotification } from '@/lib/email'
 import { recordNotification } from '@/lib/notifications'
 import type { MessageInsert, MessageThreadUpdate } from '@/types'
