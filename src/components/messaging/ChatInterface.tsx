@@ -1,34 +1,60 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useAuth } from '@/components/auth/AuthProvider'
+import { SaveConversationPrompt } from '@/components/auth/SaveConversationPrompt'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
 import { ContactCaptureForm } from './ContactCaptureForm'
 import type { Message, MessageThread } from '@/types'
 
 interface ChatInterfaceProps {
-  /** Pre-existing thread to open. If omitted, a new thread will be created on first send. */
   thread?: MessageThread | null
-  /** Pre-fill the service name in the contact form */
   serviceContext?: string
   onClose?: () => void
-  /** Called when a new thread is created so the parent can persist it */
   onThreadCreated?: (thread: MessageThread) => void
 }
 
 type ChatState = 'contact-capture' | 'chatting'
 
 export function ChatInterface({ thread: initialThread, serviceContext, onClose, onThreadCreated }: ChatInterfaceProps) {
+  const { user, loading: authLoading } = useAuth()
   const [chatState, setChatState] = useState<ChatState>(initialThread ? 'chatting' : 'contact-capture')
   const [thread, setThread] = useState<MessageThread | null>(initialThread || null)
   const [messages, setMessages] = useState<Message[]>(initialThread?.messages || [])
   const [error, setError] = useState<string | null>(null)
+  const [showSavePrompt, setShowSavePrompt] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // If user is signed in, fetch their existing thread
+  useEffect(() => {
+    if (!user || initialThread) return
+
+    const fetchMyThread = async () => {
+      try {
+        const token = await user.getIdToken()
+        const res = await fetch('/api/auth/my-thread', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok) return
+        const json = await res.json()
+        if (json.data) {
+          setThread(json.data)
+          setMessages(json.data.messages ?? [])
+          setChatState('chatting')
+        }
+      } catch {
+        // No thread yet — stay on contact form
+      }
+    }
+
+    fetchMyThread()
+  }, [user, initialThread])
 
   const handleContactSubmit = useCallback(
     async (contactData: { name: string; email: string; phone?: string; firstMessage: string }) => {
@@ -59,11 +85,14 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
         setMessages([firstMessage])
         onThreadCreated?.(newThread)
         setChatState('chatting')
+
+        // Show save prompt only if not already signed in
+        if (!user) setShowSavePrompt(true)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong')
       }
     },
-    [onThreadCreated]
+    [onThreadCreated, user]
   )
 
   const handleSend = useCallback(
@@ -73,7 +102,6 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
 
       const sentContent = content || (attachments.length > 0 ? `[${attachments.length} attachment(s)]` : '')
 
-      // Optimistically append the message immediately so it shows in the UI
       const optimistic: Message = {
         id: `optimistic-${Date.now()}`,
         threadId: thread.id,
@@ -101,12 +129,10 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
         })
 
         if (!res.ok) {
-          // Roll back the optimistic message on failure
           setMessages((prev) => prev.filter((m) => m.id !== optimistic.id))
           throw new Error('Failed to send message')
         }
 
-        // Replace optimistic message with the real one from the server
         const json = await res.json()
         const saved: Message = json.data
         setMessages((prev) =>
@@ -118,6 +144,15 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
     },
     [thread]
   )
+
+  // Show nothing while checking auth state to avoid flash
+  if (authLoading) {
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center">
+        <div className="w-6 h-6 border-2 border-salon-brown border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div
@@ -172,6 +207,15 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Save conversation prompt */}
+          {showSavePrompt && thread && (
+            <SaveConversationPrompt
+              threadId={thread.id}
+              onSaved={() => setShowSavePrompt(false)}
+              onDismiss={() => setShowSavePrompt(false)}
+            />
+          )}
 
           {/* Error banner */}
           {error && (
