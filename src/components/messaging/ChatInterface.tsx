@@ -1,14 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  type Unsubscribe,
-} from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
 import { ContactCaptureForm } from './ContactCaptureForm'
@@ -32,68 +24,11 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
   const [messages, setMessages] = useState<Message[]>(initialThread?.messages || [])
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const unsubscribeRef = useRef<Unsubscribe | null>(null)
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
-
-  // Subscribe to real-time message updates once we have a thread
-  useEffect(() => {
-    if (!thread) return
-
-    // Clean up any previous subscription before starting a new one
-    unsubscribeRef.current?.()
-    unsubscribeRef.current = null
-
-    const threadId = thread.id
-    const messagesRef = collection(db, 'message_threads', threadId, 'messages')
-    const q = query(messagesRef, orderBy('created_at', 'asc'))
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const updated: Message[] = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data()
-          return {
-            id: docSnap.id,
-            threadId,
-            senderType: data.sender_type,
-            senderName: data.sender_name ?? undefined,
-            content: data.content,
-            attachments: data.attachments?.map((att: {
-              id: string
-              file_name: string
-              file_url: string
-              file_type: string
-              file_size: number
-            }) => ({
-              id: att.id,
-              fileName: att.file_name,
-              fileUrl: att.file_url,
-              fileType: att.file_type,
-              fileSize: att.file_size,
-            })),
-            readAt: data.read_at ? new Date(data.read_at.seconds * 1000) : undefined,
-            createdAt: data.created_at ? new Date(data.created_at.seconds * 1000) : new Date(),
-          }
-        })
-        setMessages(updated)
-      },
-      (err) => {
-        console.error('Realtime subscription error:', err)
-        setError('Lost connection. Messages may be delayed.')
-      }
-    )
-
-    unsubscribeRef.current = unsubscribe
-
-    return () => {
-      unsubscribe()
-      unsubscribeRef.current = null
-    }
-  }, [thread?.id])
 
   const handleContactSubmit = useCallback(
     async (contactData: { name: string; email: string; phone?: string; firstMessage: string }) => {
@@ -116,7 +51,12 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
 
         const json = await res.json()
         const newThread: MessageThread = json.data.thread
+        const firstMessage: Message = {
+          ...json.data.message,
+          createdAt: new Date(json.data.message.createdAt ?? Date.now()),
+        }
         setThread(newThread)
+        setMessages([firstMessage])
         onThreadCreated?.(newThread)
         setChatState('chatting')
       } catch (err) {
@@ -131,13 +71,24 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
       if (!thread) return
       setError(null)
 
+      const sentContent = content || (attachments.length > 0 ? `[${attachments.length} attachment(s)]` : '')
+
+      // Optimistically append the message immediately so it shows in the UI
+      const optimistic: Message = {
+        id: `optimistic-${Date.now()}`,
+        threadId: thread.id,
+        senderType: 'client',
+        content: sentContent,
+        createdAt: new Date(),
+      }
+      setMessages((prev) => [...prev, optimistic])
+
       try {
-        // For now we send text content; file upload to storage would be wired here
         const res = await fetch(`/api/messages/${thread.id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            content: content || (attachments.length > 0 ? `[${attachments.length} attachment(s)]` : ''),
+            content: sentContent,
             senderType: 'client',
             attachments: attachments.map((a) => ({
               id: a.id,
@@ -149,8 +100,18 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
           }),
         })
 
-        if (!res.ok) throw new Error('Failed to send message')
-        // Real-time listener will update messages automatically
+        if (!res.ok) {
+          // Roll back the optimistic message on failure
+          setMessages((prev) => prev.filter((m) => m.id !== optimistic.id))
+          throw new Error('Failed to send message')
+        }
+
+        // Replace optimistic message with the real one from the server
+        const json = await res.json()
+        const saved: Message = json.data
+        setMessages((prev) =>
+          prev.map((m) => (m.id === optimistic.id ? { ...saved, createdAt: new Date(saved.createdAt) } : m))
+        )
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to send message')
       }
