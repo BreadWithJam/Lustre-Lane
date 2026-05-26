@@ -25,7 +25,36 @@ function getAdminApp(): App {
   })
 }
 
-export const adminApp: App = getAdminApp()
-export const adminDb: Firestore = getFirestore(adminApp)
-export const adminAuth: Auth = getAuth(adminApp)
-export const adminStorage: Storage = getStorage(adminApp)
+// Lazy singletons — only initialized when first accessed
+let _app: App | null = null
+let _db: Firestore | null = null
+let _auth: Auth | null = null
+let _storage: Storage | null = null
+
+function app(): App {
+  if (!_app) _app = getAdminApp()
+  return _app
+}
+
+export const adminDb: Firestore = new Proxy({} as Firestore, {
+  get(_, prop) {
+    if (!_db) _db = getFirestore(app())
+    return (_db as unknown as Record<string | symbol, unknown>)[prop]
+  },
+})
+
+export const adminAuth: Auth = new Proxy({} as Auth, {
+  get(_, prop) {
+    if (!_auth) _auth = getAuth(app())
+    return (_auth as unknown as Record<string | symbol, unknown>)[prop]
+  },
+})
+
+export const adminStorage: Storage = new Proxy({} as Storage, {
+  get(_, prop) {
+    if (!_storage) _storage = getStorage(app())
+    return (_storage as unknown as Record<string | symbol, unknown>)[prop]
+  },
+})
+
+export const adminApp = { get app() { return app() } }

@@ -7,14 +7,15 @@ const isDev = process.env.NODE_ENV === "development";
 // 'unsafe-eval' only in development (React DevTools requirement).
 const cspHeader = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://apis.google.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   // Supabase storage + Firebase storage for gallery images
-  "img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://firebasestorage.googleapis.com",
-  // Supabase realtime + Firebase (Firestore, Auth, Storage) + Resend
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com https://api.resend.com",
+  "img-src 'self' blob: data: https://*.supabase.co https://*.supabase.in https://firebasestorage.googleapis.com https://lh3.googleusercontent.com",
+  // Supabase realtime + Firebase (Firestore, Auth, Storage) + Resend + Google OAuth
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.firebaseio.com wss://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com https://api.resend.com https://accounts.google.com",
   "frame-ancestors 'none'",
+  "frame-src https://accounts.google.com https://luster-lane-44953.firebaseapp.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -78,6 +79,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "firebasestorage.googleapis.com",
+      },
+      // Google profile photos
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
       },
       // Local development
       {

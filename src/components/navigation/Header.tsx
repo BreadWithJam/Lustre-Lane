@@ -72,12 +72,13 @@ export function Header() {
             <div className="flex items-center gap-2">
               <Link href="/chat" className="flex items-center gap-2">
                 {user.photoURL ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={user.photoURL}
                     alt={user.displayName ?? 'Your account'}
                     width={32}
                     height={32}
-                    className="rounded-full"
+                    className="rounded-full w-8 h-8 object-cover"
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-salon-brown text-white flex items-center justify-center text-sm font-bold">
