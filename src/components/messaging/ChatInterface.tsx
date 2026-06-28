@@ -72,6 +72,8 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
       setThread(parsed)
       setMessages(parsed.messages ?? [])
       setChatState('chatting')
+      // Prompt sign-in since this is a guest restoring from localStorage
+      setShowSavePrompt(true)
       return true
     }
 
