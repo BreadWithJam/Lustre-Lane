@@ -43,16 +43,22 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const parseThreadDates = useCallback((t: MessageThread): MessageThread => ({
-    ...t,
-    lastMessageAt: new Date(t.lastMessageAt),
-    createdAt: new Date(t.createdAt),
-    messages: t.messages?.map((m) => ({
-      ...m,
-      createdAt: new Date(m.createdAt),
-      readAt: m.readAt ? new Date(m.readAt) : undefined,
-    })),
-  }), [])
+  const parseThreadDates = useCallback((t: MessageThread): MessageThread => {
+    const safeDate = (v: unknown): Date => {
+      const d = new Date(v as string)
+      return isNaN(d.getTime()) ? new Date() : d
+    }
+    return {
+      ...t,
+      lastMessageAt: safeDate(t.lastMessageAt),
+      createdAt: safeDate(t.createdAt),
+      messages: t.messages?.map((m) => ({
+        ...m,
+        createdAt: safeDate(m.createdAt),
+        readAt: m.readAt ? safeDate(m.readAt) : undefined,
+      })),
+    }
+  }, [])
 
   // Restore thread on mount — runs once auth state is resolved
   useEffect(() => {
@@ -116,11 +122,16 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
         let found = false
         if (user) {
           found = await fetchLinkedThreads()
-          if (!found) found = await restoreFromStorage()
+          if (!found) {
+            // Signed-in user with no linked threads — don't load a stale
+            // localStorage thread that may belong to a different account
+            localStorage.removeItem('chat_thread_id')
+            setChatState('contact-capture')
+          }
         } else {
           found = await restoreFromStorage()
+          if (!found) setChatState('contact-capture')
         }
-        if (!found) setChatState('contact-capture')
       } catch {
         setChatState('contact-capture')
       }
