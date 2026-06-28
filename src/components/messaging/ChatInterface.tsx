@@ -189,7 +189,7 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
           })
         }
 
-        setThread(newThread)
+        setThread(parseThreadDates(newThread))
         setMessages([firstMessage])
         onThreadCreated?.(newThread)
         setChatState('chatting')

@@ -81,7 +81,7 @@ function DefaultErrorFallback({ error, reset }: { error: Error; reset: () => voi
       <p className="text-sm text-salon-warm-gray mb-6 max-w-sm">
         {error.message || 'An unexpected error occurred. Please try again.'}
       </p>
-      {process.env.NODE_ENV !== 'production' && error.stack && (
+      {error.stack && (
         <pre className="text-left text-xs text-red-400 bg-red-50 rounded p-3 max-w-lg overflow-auto mb-4 max-h-40">
           {error.stack}
         </pre>

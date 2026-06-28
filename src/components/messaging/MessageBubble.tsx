@@ -7,13 +7,14 @@ interface MessageBubbleProps {
   message: Message
 }
 
-function formatTime(date: Date): string {
-  if (!date || isNaN(date.getTime())) return ''
+function formatTime(date: Date | string): string {
+  const d = date instanceof Date ? date : new Date(date)
+  if (!d || isNaN(d.getTime())) return ''
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
-  }).format(date)
+  }).format(d)
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
