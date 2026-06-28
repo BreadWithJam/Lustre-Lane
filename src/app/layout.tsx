@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "@/lib/react-query";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { WebVitals } from "@/components/WebVitals";
@@ -51,6 +52,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ReactQueryProvider>
+          <AuthProvider>
           <WebVitals />
           <Header />
           {/* pb-16 on mobile to clear the sticky bottom nav */}
@@ -60,6 +62,7 @@ export default function RootLayout({
             </ErrorBoundary>
           </div>
           <BottomNav />
+          </AuthProvider>
         </ReactQueryProvider>
       </body>
     </html>

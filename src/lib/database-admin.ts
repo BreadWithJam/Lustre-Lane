@@ -119,11 +119,41 @@ export const adminMessagesDb = {
 }
 
 // ---------------------------------------------------------------------------
-// Re-export transformers from the shared database module
+// Re-export transformers — defined locally so they use the admin-SDK-aware
+// toDate() above instead of the client-SDK version in database.ts
 // ---------------------------------------------------------------------------
-export {
-  transformMessageThreadRowToMessageThread,
-  transformMessageRowToMessage,
-} from './database'
+
+import type { MessageThread, Message } from '@/types'
+
+export function transformMessageThreadRowToMessageThread(row: MessageThreadRow): MessageThread {
+  return {
+    id: row.id,
+    clientEmail: row.client_email,
+    clientName: row.client_name ?? undefined,
+    clientPhone: row.client_phone ?? undefined,
+    status: row.status,
+    lastMessageAt: toDate(row.last_message_at),
+    createdAt: toDate(row.created_at),
+  }
+}
+
+export function transformMessageRowToMessage(row: MessageRow): Message {
+  return {
+    id: row.id,
+    threadId: row.thread_id,
+    senderType: row.sender_type,
+    senderName: row.sender_name ?? undefined,
+    content: row.content,
+    attachments: row.attachments?.map((att) => ({
+      id: att.id,
+      fileName: att.file_name,
+      fileUrl: att.file_url,
+      fileType: att.file_type,
+      fileSize: att.file_size,
+    })),
+    readAt: row.read_at ? toDate(row.read_at) : undefined,
+    createdAt: toDate(row.created_at),
+  }
+}
 
 export { toDate }

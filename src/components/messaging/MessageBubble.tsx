@@ -8,6 +8,7 @@ interface MessageBubbleProps {
 }
 
 function formatTime(date: Date): string {
+  if (!date || isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',

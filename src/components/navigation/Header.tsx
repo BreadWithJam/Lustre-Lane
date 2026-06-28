@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/utils'
+import { useAuth } from '@/components/auth/AuthProvider'
+import { signInWithGoogle, signOut } from '@/lib/client-auth'
 import LogoMark from '@assets/images/logo only.png'
 
 const navLinks = [
@@ -15,6 +17,7 @@ const navLinks = [
 
 export function Header() {
   const pathname = usePathname()
+  const { user } = useAuth()
 
   // Admin section has its own navigation
   if (pathname.startsWith('/admin')) return null
@@ -64,6 +67,41 @@ export function Header() {
           >
             📞 Call
           </a>
+
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link href="/chat" className="flex items-center gap-2">
+                {user.photoURL ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName ?? 'Your account'}
+                    width={32}
+                    height={32}
+                    className="rounded-full w-8 h-8 object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-salon-brown text-white flex items-center justify-center text-sm font-bold">
+                    {(user.displayName ?? user.email ?? 'U')[0].toUpperCase()}
+                  </div>
+                )}
+              </Link>
+              <button
+                onClick={() => signOut()}
+                className="text-xs text-salon-warm-gray hover:text-salon-brown transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => signInWithGoogle()}
+              className="text-sm font-medium text-salon-warm-gray hover:text-salon-brown transition-colors"
+            >
+              Sign in
+            </button>
+          )}
+
           <Link
             href="/chat"
             className="bg-salon-brown text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-salon-brown/90 transition-colors"
