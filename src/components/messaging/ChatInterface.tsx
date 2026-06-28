@@ -87,14 +87,9 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
       if (!user) return false
       const token = await user.getIdToken(true)
 
-      // Try to link any locally stored thread to this account
-      if (storedId) {
-        await fetch('/api/auth/link-thread', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ threadId: storedId }),
-        }).catch(() => {})
-      }
+      // Do NOT auto-link the localStorage thread here — that could assign
+      // another user's thread to this account. Linking only happens when the
+      // user explicitly saves via SaveConversationPrompt.
 
       const res = await fetch('/api/auth/my-thread', {
         headers: { Authorization: `Bearer ${token}` },
