@@ -35,7 +35,6 @@ const galleryPreview = [
 ]
 
 const contactChannels = [
-  { label: 'Call', icon: '📞', href: 'tel:+15555550100' },
   { label: 'Message', icon: '💬', href: '/chat', isLink: true },
   { label: 'Email', icon: '✉️', href: 'mailto:hello@salon.example' },
   {
@@ -77,12 +76,7 @@ export default function HomePage() {
                 >
                   View Gallery
                 </Link>
-                <a
-                  href="tel:+15555550100"
-                  className="rounded-full border border-salon-brown px-6 py-3 text-sm font-semibold text-salon-brown hover:bg-salon-brown/5"
-                >
-                  Call Studio
-                </a>
+
               </div>
             </div>
           </div>

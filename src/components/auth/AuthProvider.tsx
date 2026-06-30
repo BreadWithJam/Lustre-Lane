@@ -15,8 +15,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Timeout fallback — if Firebase Auth doesn't respond in 3s, treat as signed out
-    const timeout = setTimeout(() => setLoading(false), 3000)
+    // Timeout fallback — if Firebase Auth doesn't respond in 5s, treat as signed out
+    const timeout = setTimeout(() => setLoading(false), 5000)
 
     const unsub = onAuthChange((u) => {
       clearTimeout(timeout)
