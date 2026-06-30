@@ -60,14 +60,6 @@ export function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="tel:+15555550100"
-            className="text-sm font-medium text-salon-warm-gray hover:text-salon-brown transition-colors"
-            aria-label="Call the salon"
-          >
-            📞 Call
-          </a>
-
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/chat" className="flex items-center gap-2">

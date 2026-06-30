@@ -1,7 +1,5 @@
-'use client'
-
-import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthChange, type User } from '@/lib/client-auth'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { onAuthChange, type User } from '@/lib/auth'
 
 interface AuthContextValue {
   user: User | null
@@ -10,24 +8,16 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue>({ user: null, loading: true })
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Timeout fallback — if Firebase Auth doesn't respond in 5s, treat as signed out
-    const timeout = setTimeout(() => setLoading(false), 5000)
-
     const unsub = onAuthChange((u) => {
-      clearTimeout(timeout)
       setUser(u)
       setLoading(false)
     })
-
-    return () => {
-      clearTimeout(timeout)
-      unsub()
-    }
+    return unsub
   }, [])
 
   return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>

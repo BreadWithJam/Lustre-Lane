@@ -31,6 +31,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary] Caught error:', error, info)
+    console.error('[ErrorBoundary] Component stack:', info.componentStack)
     this.props.onError?.(error, info)
   }
 
@@ -80,6 +81,11 @@ function DefaultErrorFallback({ error, reset }: { error: Error; reset: () => voi
       <p className="text-sm text-salon-warm-gray mb-6 max-w-sm">
         {error.message || 'An unexpected error occurred. Please try again.'}
       </p>
+      {error.stack && (
+        <pre className="text-left text-xs text-red-400 bg-red-50 rounded p-3 max-w-lg overflow-auto mb-4 max-h-40">
+          {error.stack}
+        </pre>
+      )}
       <button
         onClick={reset}
         className="px-4 py-2 bg-salon-brown text-white rounded-lg text-sm font-medium hover:bg-salon-brown/90 transition-colors focus:outline-none focus:ring-2 focus:ring-salon-brown/50"

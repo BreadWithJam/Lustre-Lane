@@ -13,36 +13,45 @@ export async function GET(request: NextRequest) {
     const token = authHeader.slice(7)
     const decoded = await adminAuth.verifyIdToken(token)
 
-    // Find the most recent thread for this user
+    // Query by uid only (no orderBy to avoid requiring a composite index)
     const snap = await adminDb
       .collection('message_threads')
       .where('uid', '==', decoded.uid)
-      .orderBy('last_message_at', 'desc')
-      .limit(1)
       .get()
 
     if (snap.empty) {
-      return NextResponse.json({ data: null })
+      return NextResponse.json({ data: [] })
     }
 
-    const threadDoc = snap.docs[0]
-    const thread = transformMessageThreadRowToMessageThread({ id: threadDoc.id, ...threadDoc.data() } as MessageThreadRow)
+    // Fetch messages for each thread, then sort by last_message_at descending in memory
+    const threads = await Promise.all(
+      snap.docs.map(async (threadDoc) => {
+        const thread = transformMessageThreadRowToMessageThread({
+          id: threadDoc.id,
+          ...threadDoc.data(),
+        } as MessageThreadRow)
 
-    // Fetch messages
-    const msgSnap = await adminDb
-      .collection('message_threads')
-      .doc(threadDoc.id)
-      .collection('messages')
-      .orderBy('created_at', 'asc')
-      .get()
+        const msgSnap = await adminDb
+          .collection('message_threads')
+          .doc(threadDoc.id)
+          .collection('messages')
+          .orderBy('created_at', 'asc')
+          .get()
 
-    thread.messages = msgSnap.docs.map((d) =>
-      transformMessageRowToMessage({ id: d.id, ...d.data() } as MessageRow)
+        thread.messages = msgSnap.docs.map((d) =>
+          transformMessageRowToMessage({ id: d.id, ...d.data() } as MessageRow)
+        )
+
+        return thread
+      })
     )
 
-    return NextResponse.json({ data: thread })
+    // Sort newest first in memory
+    threads.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime())
+
+    return NextResponse.json({ data: threads })
   } catch (err) {
     console.error('[my-thread]', err)
-    return NextResponse.json({ error: 'Failed to fetch thread' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch threads' }, { status: 500 })
   }
 }

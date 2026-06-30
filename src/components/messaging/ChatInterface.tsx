@@ -43,16 +43,22 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const parseThreadDates = useCallback((t: MessageThread): MessageThread => ({
-    ...t,
-    lastMessageAt: new Date(t.lastMessageAt),
-    createdAt: new Date(t.createdAt),
-    messages: t.messages?.map((m) => ({
-      ...m,
-      createdAt: new Date(m.createdAt),
-      readAt: m.readAt ? new Date(m.readAt) : undefined,
-    })),
-  }), [])
+  const parseThreadDates = useCallback((t: MessageThread): MessageThread => {
+    const safeDate = (v: unknown): Date => {
+      const d = new Date(v as string)
+      return isNaN(d.getTime()) ? new Date() : d
+    }
+    return {
+      ...t,
+      lastMessageAt: safeDate(t.lastMessageAt),
+      createdAt: safeDate(t.createdAt),
+      messages: t.messages?.map((m) => ({
+        ...m,
+        createdAt: safeDate(m.createdAt),
+        readAt: m.readAt ? safeDate(m.readAt) : undefined,
+      })),
+    }
+  }, [])
 
   // Restore thread on mount — runs once auth state is resolved
   useEffect(() => {
@@ -72,6 +78,8 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
       setThread(parsed)
       setMessages(parsed.messages ?? [])
       setChatState('chatting')
+      // Prompt sign-in since this is a guest restoring from localStorage
+      setShowSavePrompt(true)
       return true
     }
 
@@ -79,14 +87,9 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
       if (!user) return false
       const token = await user.getIdToken(true)
 
-      // Try to link any locally stored thread to this account
-      if (storedId) {
-        await fetch('/api/auth/link-thread', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ threadId: storedId }),
-        }).catch(() => {})
-      }
+      // Do NOT auto-link the localStorage thread here — that could assign
+      // another user's thread to this account. Linking only happens when the
+      // user explicitly saves via SaveConversationPrompt.
 
       const res = await fetch('/api/auth/my-thread', {
         headers: { Authorization: `Bearer ${token}` },
@@ -114,11 +117,16 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
         let found = false
         if (user) {
           found = await fetchLinkedThreads()
-          if (!found) found = await restoreFromStorage()
+          if (!found) {
+            // Signed-in user with no linked threads — don't load a stale
+            // localStorage thread that may belong to a different account
+            localStorage.removeItem('chat_thread_id')
+            setChatState('contact-capture')
+          }
         } else {
           found = await restoreFromStorage()
+          if (!found) setChatState('contact-capture')
         }
-        if (!found) setChatState('contact-capture')
       } catch {
         setChatState('contact-capture')
       }
@@ -176,7 +184,7 @@ export function ChatInterface({ thread: initialThread, serviceContext, onClose, 
           })
         }
 
-        setThread(newThread)
+        setThread(parseThreadDates(newThread))
         setMessages([firstMessage])
         onThreadCreated?.(newThread)
         setChatState('chatting')
