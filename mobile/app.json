@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Lustre Lane",
+    "slug": "lustre-lane",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F5EFE6"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.lustrelane.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F5EFE6"
+      },
+      "package": "com.lustrelane.app"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "lustrelane",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
