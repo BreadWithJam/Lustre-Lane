@@ -1,96 +1,162 @@
-# Lustre Lane - Premium Salon Microsite
+# Lustre Lane
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15+-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Expo](https://img.shields.io/badge/Expo-51-000?logo=expo)](https://expo.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-Ready-green?logo=supabase)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-Private-red)](LICENSE)
 
-A modern, responsive microsite for a premium salon featuring service browsing, style gallery, real-time messaging, and administrative management capabilities.
+A premium salon platform built as two separate clients — a Next.js website and a React Native mobile app — both backed by the same API and database.
 
-## ✨ Features
+---
 
-- 🎨 **Service Browser** - Browse salon services by category with advanced filtering
-- 📸 **Style Gallery** - Infinite scroll gallery with lightbox and organization
-- 💬 **Real-time Messaging** - Client-salon communication with file attachments
-- 👨‍💼 **Admin Panel** - Content management and customer service tools
-- 📱 **Responsive Design** - Mobile-first design with custom breakpoints
-- ♿ **Accessibility** - WCAG 2.1 AA compliant with keyboard navigation
-- ⚡ **Performance** - Optimized images, lazy loading, and Core Web Vitals
+## Overview
 
-## 🚀 Tech Stack
+Lustre Lane lets clients browse services, explore the style gallery, and message the salon team directly. The admin panel provides tools for managing content, responding to messages, and viewing analytics.
 
-### Frontend
-- **Framework**: Next.js 14+ with App Router and TypeScript
+The project is split into two apps:
+
+- `/ (root)` — Next.js website, deployed on Vercel
+- `mobile/` — Expo (React Native) app for iOS and Android
+
+Both share the same Next.js API routes and Supabase/Firebase backend.
+
+---
+
+## Tech Stack
+
+### Website (Next.js)
+- **Framework**: Next.js with App Router and TypeScript
 - **Styling**: Tailwind CSS v4 with custom salon theme
-- **State Management**: 
-  - React Query (TanStack Query) for server state
-  - Zustand for client-side UI state
+- **State**: React Query for server state, Zustand for UI state
+- **Auth**: Firebase Authentication
+- **Database**: Supabase (PostgreSQL)
+- **Email**: Resend
+- **Deployment**: Vercel
 
-### Backend & Database
-- **Database**: Supabase (PostgreSQL with real-time subscriptions)
-- **Authentication**: Supabase Auth
-- **File Storage**: Supabase Storage
-- **Email**: Resend or SendGrid integration
+### Mobile (Expo / React Native)
+- **Framework**: Expo with Expo Router (file-based navigation)
+- **Language**: TypeScript
+- **Auth**: Firebase Authentication (shared with website)
+- **API**: Calls the deployed Next.js API routes
 
-### Development & Testing
-- **Testing**: Vitest + Fast-check + Testing Library
-- **Code Quality**: ESLint + Prettier + TypeScript
-- **Deployment**: Vercel (recommended)
+---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-src/
-├── app/                 # Next.js App Router pages
-├── components/          # Reusable React components
-├── hooks/              # Custom React hooks
-├── lib/                # Configuration and utilities
-├── services/           # API service functions
-├── stores/             # Zustand state stores
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-└── test/               # Test setup and utilities
+/
+├── src/
+│   ├── app/             # Next.js App Router pages and API routes
+│   ├── components/      # Reusable React components
+│   ├── hooks/           # Custom React hooks
+│   ├── lib/             # Config, auth, database utilities
+│   ├── stores/          # Zustand state stores
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Utility functions
+├── mobile/
+│   ├── app/             # Expo Router screens
+│   │   ├── (tabs)/      # Bottom tab screens (Home, Services, Gallery, Chat)
+│   │   └── chat/        # Individual conversation screen
+│   ├── components/      # Shared mobile UI components
+│   ├── constants/       # Colors, API endpoints
+│   ├── context/         # Auth context
+│   ├── lib/             # Firebase init, auth helpers
+│   └── types/           # Shared TypeScript types
+├── supabase/            # Database migrations and config
+└── public/              # Static assets
 ```
 
-## 🛠️ Getting Started
+---
 
-### Prerequisites
+## Getting Started
 
-- Node.js 18+ 
-- npm or yarn
-- Supabase account (for database)
+### Website
 
-### Installation
+**Prerequisites**: Node.js 18+, Supabase account, Firebase project
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/Lustre-Lane.git
-   cd Lustre-Lane
-   ```
-
-2. **Install dependencies**
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-3. **Set up environment variables**
+2. Set up environment variables:
    ```bash
    cp .env.local.example .env.local
    ```
-   
-   Fill in your Supabase credentials and other configuration values.
+   Fill in your Supabase, Firebase, and Resend credentials.
 
-4. **Run the development server**
+3. Run the development server:
    ```bash
    npm run dev
    ```
+   Open [http://localhost:3000](http://localhost:3000).
 
-5. **Open your browser**
-   
-   Navigate to [http://localhost:3000](http://localhost:3000)
+### Mobile App
 
-## 📜 Available Scripts
+1. Install dependencies:
+   ```bash
+   cd mobile
+   npm install
+   ```
+
+2. Set up environment variables:
+   ```bash
+   cp mobile/.env.example mobile/.env
+   ```
+   Set `EXPO_PUBLIC_API_URL` to your deployed Vercel URL and add the Firebase config values.
+
+3. Start the Expo dev server:
+   ```bash
+   npm start
+   ```
+   Press `i` for iOS simulator or `a` for Android emulator.
+
+---
+
+## Environment Variables
+
+### Website (`.env.local`)
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+
+# Email
+RESEND_API_KEY=your_resend_key
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### Mobile (`mobile/.env`)
+
+```env
+EXPO_PUBLIC_API_URL=https://your-deployment.vercel.app
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+EXPO_PUBLIC_FIREBASE_APP_ID=
+```
+
+---
+
+## Available Scripts
+
+### Website
 
 | Script | Description |
 |--------|-------------|
@@ -98,136 +164,56 @@ src/
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
-| `npm run lint:fix` | Fix ESLint issues |
 | `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run test` | Run tests once |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run type-check` | Run TypeScript type checking |
+| `npm run test` | Run tests |
+| `npm run type-check` | TypeScript type check |
 
-## 🔧 Environment Variables
+### Mobile
 
-Create a `.env.local` file with the following variables:
-
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
-
-# Email Service Configuration
-RESEND_API_KEY=your_resend_api_key_here
-
-# Application Configuration
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-## 🎯 Key Features Implementation
-
-### Service Management
-- Dynamic service categories (Cuts, Color, Treatments, Packages)
-- Price and duration display
-- Stylist assignment
-- Favorite functionality
-
-### Gallery System
-- Masonry layout with infinite scroll
-- Image optimization and lazy loading
-- Category and tag-based filtering
-- Lightbox with navigation
-
-### Messaging System
-- Real-time chat interface
-- File attachment support
-- Preset conversation prompts
-- Admin response management
-
-### Admin Dashboard
-- Service CRUD operations
-- Gallery management
-- Message inbox with filters
-- Analytics and metrics
-
-## 🧪 Testing Strategy
-
-The project uses a comprehensive testing approach:
-
-- **Unit Tests**: Vitest for utility functions and components
-- **Property-Based Tests**: Fast-check for business logic validation
-- **Integration Tests**: Testing Library for user interactions
-- **Type Safety**: TypeScript for compile-time error prevention
-
-Run tests with:
-```bash
-npm run test        # Single run
-npm run test:watch  # Watch mode
-```
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. **Connect to Vercel**
-   ```bash
-   npm i -g vercel
-   vercel
-   ```
-
-2. **Set environment variables** in Vercel dashboard
-
-3. **Deploy**
-   ```bash
-   vercel --prod
-   ```
-
-### Other Platforms
-
-The application can be deployed to any platform that supports Next.js:
-- Netlify
-- Railway
-- DigitalOcean App Platform
-- AWS Amplify
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes following the development guidelines
-4. Add tests for new functionality
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-## 📋 Development Guidelines
-
-### Code Style
-- Use TypeScript for all new code
-- Follow ESLint and Prettier configuration
-- Use meaningful component and function names
-- Add JSDoc comments for complex functions
-
-### State Management
-- Use React Query for server state (API calls, caching)
-- Use Zustand for client-side UI state (modals, filters, etc.)
-- Keep state as local as possible
-
-### Styling
-- Use Tailwind CSS utility classes
-- Leverage the custom salon color palette
-- Follow mobile-first responsive design principles
-- Use semantic HTML elements for accessibility
-
-## 📄 License
-
-This project is private and proprietary.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
-- [Supabase](https://supabase.com/) for backend infrastructure
-- [Vercel](https://vercel.com/) for seamless deployment
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start Expo dev server |
+| `npm run android` | Open on Android emulator |
+| `npm run ios` | Open on iOS simulator |
 
 ---
 
-**Built with ❤️ for premium salon experiences**
+## Features
+
+### Client-facing
+- Service browser with category filtering and favorites
+- Style gallery with lightbox and infinite scroll
+- Real-time messaging with file attachment support
+- Push and email notifications
+
+### Admin
+- Service and gallery content management
+- Message inbox with reply support
+- Analytics dashboard
+
+---
+
+## Deployment
+
+### Website — Vercel
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+Add all environment variables in the Vercel project dashboard.
+
+### Mobile — Expo EAS
+
+```bash
+npm install -g eas-cli
+eas build
+eas submit
+```
+
+---
+
+## License
+
+Private and proprietary.
