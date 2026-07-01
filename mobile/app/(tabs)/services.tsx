@@ -34,7 +34,10 @@ export default function ServicesScreen() {
         return r.json()
       })
       .then((json) => setServices(json.data ?? []))
-      .catch((err) => setError(err.message ?? 'Failed to load services'))
+      .catch((err) => {
+        console.error('[Services] fetch error:', err)
+        setError(err.message ?? 'Failed to load services')
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -157,6 +160,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     backgroundColor: Colors.white,
+    alignSelf: 'flex-start',
   },
   chipActive: { backgroundColor: Colors.brown, borderColor: Colors.brown },
   chipText: { color: Colors.warmGray, fontSize: 13, fontWeight: '500' },

@@ -26,7 +26,10 @@ export default function GalleryScreen() {
         return r.json()
       })
       .then((json) => setImages(json.data ?? []))
-      .catch((err) => setError(err.message ?? 'Failed to load gallery'))
+      .catch((err) => {
+        console.error('[Gallery] fetch error:', err)
+        setError(err.message ?? 'Failed to load gallery')
+      })
       .finally(() => setLoading(false))
   }, [])
 
