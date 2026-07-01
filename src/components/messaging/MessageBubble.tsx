@@ -7,9 +7,10 @@ interface MessageBubbleProps {
   message: Message
 }
 
-function formatTime(date: Date | string): string {
+function formatTime(date: Date | string | null | undefined): string {
+  if (!date) return ''
   const d = date instanceof Date ? date : new Date(date)
-  if (!d || isNaN(d.getTime())) return ''
+  if (isNaN(d.getTime())) return ''
   return new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -54,7 +55,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
         {/* Timestamp + read status */}
         <div className={`flex items-center gap-1 px-1 ${isClient ? 'flex-row-reverse' : 'flex-row'}`}>
-          <span className="text-xs text-salon-warm-gray">{formatTime(message.createdAt)}</span>
+          <span className="text-xs text-salon-warm-gray">{formatTime(message.createdAt ?? undefined)}</span>
           {isClient && message.readAt && (
             <svg className="w-3.5 h-3.5 text-salon-gold" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />

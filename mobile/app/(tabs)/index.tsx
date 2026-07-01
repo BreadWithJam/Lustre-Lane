@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, StyleSheet, Pressable } from 'react-native'
+import { ScrollView, View, Text, StyleSheet, Pressable, ImageBackground } from 'react-native'
 import { useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -18,17 +18,27 @@ export default function HomeScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
 
         {/* Hero */}
-        <View style={styles.hero}>
-          <Text style={styles.eyebrow}>Lustre Lane Salon</Text>
-          <Text style={styles.heroTitle}>Premium Hair{'\n'}&amp; Beauty</Text>
-          <Text style={styles.heroSubtitle}>
-            Expert stylists. Personalised care. Unforgettable results.
-          </Text>
-          <Pressable style={styles.cta} onPress={() => router.push('/chat')}>
-            <Text style={styles.ctaText}>Book a Consultation</Text>
-            <Ionicons name="arrow-forward" size={16} color={Colors.white} />
-          </Pressable>
-        </View>
+        <ImageBackground
+          source={require('../../assets/images/salon.png')}
+          style={styles.heroBg}
+          resizeMode="cover"
+          imageStyle={{ objectPosition: 'bottom' }}
+        >
+          <View style={styles.heroOverlay} />
+          <View style={styles.heroCardWrapper}>
+              <View style={styles.heroCardInner}>
+                <Text style={styles.eyebrow}>Lustre Lane Salon</Text>
+                <Text style={styles.heroTitle}>Premium Hair{'\n'}&amp; Beauty</Text>
+                <Text style={styles.heroSubtitle}>
+                  Expert stylists. Personalised care. Unforgettable results.
+                </Text>
+                <Pressable style={styles.cta} onPress={() => router.push('/chat')}>
+                  <Text style={styles.ctaText}>Book a Consultation</Text>
+                  <Ionicons name="arrow-forward" size={16} color={Colors.white} />
+                </Pressable>
+              </View>
+          </View>
+        </ImageBackground>
 
         {/* Quick links */}
         <View style={styles.quickRow}>
@@ -71,11 +81,29 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   scroll: { paddingBottom: 40 },
 
-  hero: {
-    backgroundColor: Colors.brown,
-    paddingHorizontal: 28,
-    paddingTop: 44,
-    paddingBottom: 44,
+  heroBg: {
+    width: '100%',
+    height: 420,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 36,
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
+  heroCardWrapper: {
+    width: '88%',
+    borderRadius: 28,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  heroCardInner: {
+    backgroundColor: 'rgba(100,55,25,0.72)',
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    borderRadius: 28,
   },
   eyebrow: {
     color: Colors.gold,
