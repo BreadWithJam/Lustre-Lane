@@ -96,7 +96,7 @@ export function Header() {
 
           <Link
             href="/chat"
-            className="bg-salon-brown text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-salon-brown/90 transition-colors"
+            className="bg-salon-gold text-salon-brown px-5 py-2 rounded-full text-sm font-semibold hover:bg-salon-gold/90 transition-colors"
           >
             Book Now
           </Link>

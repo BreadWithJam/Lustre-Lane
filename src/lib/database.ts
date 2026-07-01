@@ -93,11 +93,9 @@ async function handleOp<T>(op: () => Promise<T>): Promise<T> {
 export const servicesDb = {
   async getAll(activeOnly = true): Promise<ServiceRow[]> {
     return handleOp(async () => {
-      const constraints: QueryConstraint[] = [orderBy('created_at', 'desc')]
-      if (activeOnly) constraints.unshift(where('is_active', '==', true))
-
-      const snap = await getDocs(query(collection(db, COLLECTIONS.SERVICES), ...constraints))
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceRow))
+      const snap = await getDocs(query(collection(db, COLLECTIONS.SERVICES), orderBy('created_at', 'desc')))
+      const rows = snap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceRow))
+      return activeOnly ? rows.filter(r => r.is_active) : rows
     })
   },
 
@@ -111,14 +109,13 @@ export const servicesDb = {
 
   async getByCategory(category: string, activeOnly = true): Promise<ServiceRow[]> {
     return handleOp(async () => {
-      const constraints: QueryConstraint[] = [
+      const snap = await getDocs(query(
+        collection(db, COLLECTIONS.SERVICES),
         where('category', '==', category),
         orderBy('created_at', 'desc'),
-      ]
-      if (activeOnly) constraints.unshift(where('is_active', '==', true))
-
-      const snap = await getDocs(query(collection(db, COLLECTIONS.SERVICES), ...constraints))
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceRow))
+      ))
+      const rows = snap.docs.map(d => ({ id: d.id, ...d.data() } as ServiceRow))
+      return activeOnly ? rows.filter(r => r.is_active) : rows
     })
   },
 

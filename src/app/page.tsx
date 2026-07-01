@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { SearchBar } from '@/components/navigation/SearchBar'
+import { FloatingBubbles } from '@/components/FloatingBubbles'
 import warmCaramel from '@assets/images/warm caramel layers.jpg'
 import sleekBob from '@assets/images/sleek bob with copper gloss.jpg'
 import dimensionalBalayage from '@assets/images/dimensional balayage.jpg'
@@ -49,66 +49,46 @@ export default function HomePage() {
   return (
     <main className="flex-1 bg-white">
       {/* Hero Section */}
-      <section className="relative isolate overflow-hidden px-4 pt-24 pb-16 md:pt-32">
-        <div className="mx-auto grid gap-12 md:grid-cols-[1.1fr,0.9fr] max-w-6xl">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-salon-warm-gray mb-4">Lustre Lane</p>
-            <h1 className="text-4xl md:text-6xl font-serif leading-tight text-salon-brown">
-              Modern hair artistry rooted in ritual and precision.
-            </h1>
-            <p className="mt-6 text-lg text-salon-warm-gray">
-              Browse a curated service menu, preview seasonal color work, and message the studio team in one fluid experience.
-            </p>
+      <section className="relative isolate overflow-hidden h-[70vh] min-h-[500px] flex items-center">
+        {/* Background image */}
+        <Image
+          src="/salon.png"
+          alt="Lustre Lane Salon interior"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        {/* Gradient overlay — heavier left, fades right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/40 to-black/10" aria-hidden="true" />
 
-            <div className="mt-10 space-y-4">
-              <SearchBar
-                placeholder="Search services or styles"
-                scope="global"
-                className="shadow-[0_10px_40px_rgba(0,0,0,0.08)]"
-              />
-              <div className="flex flex-wrap gap-3">
-                <Link href="/chat" className="rounded-full bg-salon-brown px-6 py-3 text-sm font-semibold text-white">
-                  Book an Appointment
-                </Link>
-                <Link
-                  href="/gallery"
-                  className="rounded-full border border-salon-brown px-6 py-3 text-sm font-semibold text-salon-brown hover:bg-salon-brown/5"
-                >
-                  View Gallery
-                </Link>
-
-              </div>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-br from-salon-cream/40 via-white/30 to-salon-gold/25 opacity-90 blur-3xl" aria-hidden="true" />
-            <div className="relative rounded-[28px] border border-white/40 bg-salon-cream shadow-[0_30px_80px_rgba(38,20,8,0.18)] flex flex-col gap-8 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/5 opacity-90 backdrop-blur-sm" aria-hidden="true" />
-              <div className="relative p-8 space-y-8">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-salon-warm-gray mb-2">Sessions This Week</p>
-                  <p className="text-5xl font-serif text-salon-brown">48</p>
-                </div>
-                <div className="space-y-3">
-                  {[ 'Cuts & Shaping', 'Color Studio', 'Editorial Styling' ].map((item) => (
-                    <div key={item} className="flex items-center justify-between text-sm text-salon-warm-gray">
-                      <span>{item}</span>
-                      <span className="text-salon-brown">Available</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-2xl bg-white/80 p-4 shadow-inner backdrop-blur">
-                  <p className="text-sm text-salon-warm-gray">Chat directly with a stylist for custom recommendations.</p>
-                  <Link
-                    href="/chat"
-                    className="mt-3 inline-flex items-center text-sm font-semibold text-salon-brown hover:text-salon-gold"
-                  >
-                    Start a conversation →
-                  </Link>
-                </div>
-              </div>
-            </div>
+        {/* Content — left aligned */}
+        <div className="relative z-10 px-10 md:px-16 max-w-[520px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-salon-gold mb-3">
+            Lustre Lane Salon
+          </p>
+          <h1 className="font-serif leading-[1.15] text-[2.6rem] md:text-[3rem]">
+            <span className="font-bold text-white">Premium Hair &amp;</span>
+            <br />
+            <span className="italic font-bold text-salon-gold">Beauty</span>
+          </h1>
+          <p className="mt-4 text-[13.5px] leading-[1.7] text-white/75 max-w-[320px]">
+            Expert stylists. Personalised care. Unforgettable results. Discover the ritual of
+            self-care in an environment designed for total tranquility.
+          </p>
+          <div className="mt-7 flex items-center gap-3">
+            <Link
+              href="/chat"
+              className="inline-flex items-center gap-2 rounded-full bg-salon-gold px-6 py-[11px] text-[13.5px] font-semibold text-salon-brown hover:bg-salon-gold/90 transition-colors"
+            >
+              Book a Consultation →
+            </Link>
+            <Link
+              href="/services"
+              className="inline-flex items-center rounded-full px-6 py-[11px] text-[13.5px] font-semibold text-white hover:bg-white/10 transition-colors"
+            >
+              Explore Services
+            </Link>
           </div>
         </div>
       </section>
@@ -193,39 +173,38 @@ export default function HomePage() {
 
       {/* Messaging Highlight */}
       <section className="px-4 pb-20">
-        <div className="mx-auto max-w-6xl rounded-[32px] bg-salon-brown text-white p-10 md:p-14">
-          <div className="grid gap-10 md:grid-cols-2">
+        <div className="mx-auto max-w-6xl rounded-[32px] bg-salon-gold p-10 md:p-14" style={{ color: '#3a2800' }}>
+          <div className="grid gap-10 md:grid-cols-2 items-center">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-white/70">Messaging</p>
-              <h2 className="mt-4 text-3xl font-serif">Talk to a stylist before you commit.</h2>
-              <p className="mt-4 text-white/80">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: 'rgba(58,40,0,0.55)' }}>
+                Messaging
+              </p>
+              <h2 className="text-4xl font-serif font-bold leading-tight">
+                Talk to a stylist<br />before you commit.
+              </h2>
+              <p className="mt-5 text-[13.5px] leading-[1.8] max-w-[320px]" style={{ color: 'rgba(58,40,0,0.65)' }}>
                 Send inspiration photos, ask about maintenance, or confirm availability. Replies arrive via in-app message plus email notifications.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/chat" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-salon-brown">
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/chat"
+                  className="rounded-full bg-white px-6 py-3 text-xs font-bold uppercase tracking-[0.15em] hover:bg-white/90 transition-colors"
+                  style={{ color: '#3a2800' }}
+                >
                   Open Messenger
                 </Link>
                 <a
                   href="mailto:hello@salon.example"
-                  className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
+                  className="rounded-full border px-6 py-3 text-xs font-bold uppercase tracking-[0.15em] hover:bg-white/20 transition-colors"
+                  style={{ color: '#3a2800', borderColor: 'rgba(58,40,0,0.25)', background: 'rgba(255,255,255,0.15)' }}
                 >
                   Send Email
                 </a>
               </div>
             </div>
-            <div className="rounded-[28px] bg-white/5 p-6 backdrop-blur">
-              <div className="space-y-4">
-                {[
-                  'Can I blend this copper tone with my natural base?',
-                  'Looking for a low-maintenance cut before summer travel.',
-                  'Do you have openings for a treatment + gloss next week?',
-                ].map((message) => (
-                  <div key={message} className="rounded-2xl bg-white/10 p-4 text-sm text-white/90">
-                    {message}
-                  </div>
-                ))}
-              </div>
-            </div>
+
+            {/* Floating chat bubbles */}
+            <FloatingBubbles />
           </div>
         </div>
       </section>
